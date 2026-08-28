@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.anionianonion.eadcfiss_v2.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ArmorDoesntAffectElementalDamageMixin",
+    "DisableDoubleDipResistsMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "anionianonions_damage_megacompat.mixins.refmap.json"
+}
