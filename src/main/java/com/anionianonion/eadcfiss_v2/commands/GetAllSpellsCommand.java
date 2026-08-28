@@ -19,7 +19,6 @@ public class GetAllSpellsCommand {
         dispatcher.register(Commands.literal("get_all_iss_spells").executes(ctx -> {
 
             List<Class<? extends AbstractSpell>> allSpells = new ArrayList<>();
-            AbstractSpell.class.
             return 0;
         }));
     }

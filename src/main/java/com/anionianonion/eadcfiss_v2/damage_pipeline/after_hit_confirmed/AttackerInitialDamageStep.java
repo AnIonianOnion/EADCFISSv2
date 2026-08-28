@@ -36,9 +36,9 @@ public class AttackerInitialDamageStep implements IDamageStep {
 
         //the first predicate should always true if the rest is true, but we need it to access an instance of the magic summon class
         //unfortunately the attacker is never the minion, but the summoner, so the first part is always false. and we still need to get the minion somehow.
-        if(attacker instanceof MagicSummon minion && damageContext.getSource().equals("minion")) {
+        if(directEntity instanceof LivingEntity livingDirectEntity && directEntity != attacker && damageContext.getSource().equals("minion")) {
             AnIonianOnionsDamageMegacompatMod.LOGGER.info("attacker is instance of magic summon");
-            var summonerStatContainer = minion.getSummoner().getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
+            var summonerStatContainer = livingDirectEntity.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
 
             //ownStatContainer can be extracted out, for use in the case where it's only themselves
             //---^^^
@@ -57,7 +57,7 @@ public class AttackerInitialDamageStep implements IDamageStep {
             //---^^^
             //Set<ResourceLocation> filteredSummonerAttributes = aaaAPI.getFilteredAttributes(withMinionTagsToAddToSummoner);
 
-            StatContainer remappedSummonerStatsOntoMinionStatContainer = Helpers.getNewStatContainerByRemappingBtoA(ownStatContainer, summonerStatContainer, "minion", "self");
+            StatContainer remappedSummonerStatsOntoMinionStatContainer = Helpers.getNewStatContainerByRemappingBtoA(attackerStatContainer, summonerStatContainer, "minion", "self");
 
             return aaaAPI.getResult(remappedSummonerStatsOntoMinionStatContainer, ownAttributes);
         }

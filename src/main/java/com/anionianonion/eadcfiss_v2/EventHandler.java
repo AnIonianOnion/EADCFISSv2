@@ -8,6 +8,7 @@ import com.anionianonion.damage_pipeline_api.capability.DamageContextCapability;
 import com.anionianonion.elementals_api.api.ElementalsAPI;
 import io.redspace.ironsspellbooks.api.events.SpellDamageEvent;
 import io.redspace.ironsspellbooks.damage.SpellDamageSource;
+import io.redspace.ironsspellbooks.entity.mobs.MagicSummon;
 import io.redspace.ironsspellbooks.entity.spells.AoeEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -38,8 +39,21 @@ public class EventHandler {
     public static void onSpellDamage(SpellDamageEvent e) {
         //This event triggers before all the other damage events
         var damageSource = e.getSpellDamageSource().get();
-        if(!(damageSource.getEntity() instanceof LivingEntity livingCaster)) return;
+        //if(!(damageSource.getEntity() instanceof LivingEntity livingCaster || !(damageSource.getEntity() instanceof MagicSummon magicSummon))) return;
 
+        var spellDamageSourceEntity = e.getSpellDamageSource().getEntity();
+        var spellDamageSourceDirectEntity = e.getSpellDamageSource().getDirectEntity();
+        var spellDamageSourceDamageSourceEntity = e.getSpellDamageSource().get().getEntity();
+        var spellDamageSourceDamageSourceDirectEntity = e.getSpellDamageSource().get().getDirectEntity();
+
+        info(spellDamageSourceEntity.toString());
+        info(spellDamageSourceDirectEntity.toString());
+        info(spellDamageSourceDamageSourceEntity.toString());
+        info(spellDamageSourceDamageSourceDirectEntity.toString());
+
+        info(String.valueOf((spellDamageSourceDirectEntity instanceof LivingEntity && spellDamageSourceDirectEntity != spellDamageSourceEntity)));
+        info(String.valueOf(spellDamageSourceDamageSourceDirectEntity.getClass()));
+        /*
         var livingDefender = e.getEntity();
 
         DamageContext damageContext = livingCaster.getCapability(DamageContextCapability.INSTANCE).resolve().orElse(null);
@@ -63,11 +77,12 @@ public class EventHandler {
         for(var element : eapi.getAllElements()) {
             damageContext.setElement(element);
 
-            totalDamage += DamagePipeline.dealDamage(livingCaster, livingDefender, damageContext);
+            totalDamage += DamagePipeline.dealDamage(livingCaster, livingDefender, livingCasterStatContainer, livingDefenderStatContainer, damageSource.getDirectEntity(), damageContext);
         }
         livingCasterStatContainer.removeModifier(baseDamageModifier, attributeId);
 
         e.setAmount(totalDamage);
+        */
     }
 
     private static final List<String> minionSpellIds = new ArrayList<>(List.of("irons_spellbooks:summon_polar_bear", "irons_spellbooks:summon_vex", "irons_spellbooks:raise_dead", "irons_spellbooks:summon_swords"));
@@ -152,7 +167,7 @@ public class EventHandler {
         ElementalsAPI eapi = new ElementalsAPI();
         for(var element : eapi.getAllElements()) {
             damageContext.setElement(element);
-            totalDamage += DamagePipeline.dealDamage(livingAttacker, livingDefender, damageContext);
+            totalDamage += DamagePipeline.dealDamage(livingAttacker, livingDefender, livingAttackerStatContainer, livingDefenderStatContainer, damageSource.getDirectEntity(), damageContext);
         }
 
         e.setAmount(totalDamage);
