@@ -218,6 +218,9 @@ public class Init {
         dpAPI.addDamageStep(new SpellSuppressionStep());
 
          */
+
+        dpAPI.addValidDamageSourceTypeTag("self");
+        dpAPI.addValidDamageSourceTypeTag("minion");
     }
 
     private static void initSpecialAttributeCapFunctions() {

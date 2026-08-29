@@ -5,7 +5,6 @@ import com.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributes
 import com.anionianonion.advanced_arpg_attributes_api.capability.StatContainerCapability;
 import com.anionianonion.eadcfiss_v2.AnIonianOnionsDamageMegacompatMod;
 import com.anionianonion.eadcfiss_v2.util.Helpers;
-import io.redspace.ironsspellbooks.entity.mobs.MagicSummon;
 import net.minecraft.resources.ResourceLocation;
 
 import com.anionianonion.damage_pipeline_api.api.IDamageStep;
@@ -13,6 +12,7 @@ import com.anionianonion.damage_pipeline_api.DamageContext;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,34 +34,31 @@ public class AttackerInitialDamageStep implements IDamageStep {
         ownTags.add("self");
         Set<ResourceLocation> ownAttributes = aaaAPI.getFilteredAttributes(ownTags);
 
-        //the first predicate should always true if the rest is true, but we need it to access an instance of the magic summon class
-        //unfortunately the attacker is never the minion, but the summoner, so the first part is always false. and we still need to get the minion somehow.
-        if(directEntity instanceof LivingEntity livingDirectEntity && directEntity != attacker && damageContext.getSource().equals("minion")) {
-            AnIonianOnionsDamageMegacompatMod.LOGGER.info("attacker is instance of magic summon");
-            var summonerStatContainer = livingDirectEntity.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
+        //decided to handle keep it simple in the step, and handle giving the minion tag outside this step.
+        //assumes a minion is a living entity that is not a pet.
+        if(damageContext.getSource().equals("minion")) {
 
-            //ownStatContainer can be extracted out, for use in the case where it's only themselves
-            //---^^^
-            if(summonerStatContainer == null) return 0;
+            var minionStatContainer = directEntity.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
+            if(minionStatContainer == null) {
+                AnIonianOnionsDamageMegacompatMod.LOGGER.info("minion stat container is null");
+                return 0;
+            }
+            Helpers.logDataFromStatContainer(minionStatContainer);
 
-            //ownTags can also be extracted out as shared
-            //---^^^
-            var withMinionTagsToAddToSummoner = new HashSet<>(damageContext.getTags());
+            HashMap<String, String> tagsToReplace = new HashMap<>();
+            tagsToReplace.put("minion", "self");
+            tagsToReplace.put("spell", "attack");
 
-            //assuming that the tags do not contain the source tag, to make it easier on ourselves where we can add the tags manually
-            //ownTags extracted out as shared
-            //---^^^
-            withMinionTagsToAddToSummoner.add("minion");
+            StatContainer remappedSummonerStatsOntoMinionStatContainer = Helpers.getNewStatContainerByRemappingBtoA(minionStatContainer, attackerStatContainer, tagsToReplace);
 
-            //filteredSummonedAttributes assumes it comes from a summoned entity and that the attributes are its own. But if the entity is not summoned, it's still its own attributes. So we can extract it and renamed it to ownAttributes.
-            //---^^^
-            //Set<ResourceLocation> filteredSummonerAttributes = aaaAPI.getFilteredAttributes(withMinionTagsToAddToSummoner);
-
-            StatContainer remappedSummonerStatsOntoMinionStatContainer = Helpers.getNewStatContainerByRemappingBtoA(attackerStatContainer, summonerStatContainer, "minion", "self");
-
-            return aaaAPI.getResult(remappedSummonerStatsOntoMinionStatContainer, ownAttributes);
+            var result = aaaAPI.getResult(remappedSummonerStatsOntoMinionStatContainer, ownAttributes);
+            AnIonianOnionsDamageMegacompatMod.LOGGER.info("minion damage: " + result);
+            return result;
         }
-        return aaaAPI.getResult(attackerStatContainer, ownAttributes);
+
+        var ownDamage = aaaAPI.getResult(attackerStatContainer, ownAttributes);
+        //AnIonianOnionsDamageMegacompatMod.LOGGER.info("own damage: " + ownDamage);
+        return ownDamage;
 
     }
 
