@@ -14,17 +14,15 @@ import java.util.Set;
 
 public class ArmorStep implements IDamageStep {
 
+    @Override
     public float apply(float initialDamage,
-                       LivingEntity attacker, LivingEntity defender,
                        StatContainer attackerStatContainer, StatContainer defenderStatContainer,
-                       Entity directEntity, DamageContext damageContext) {
+                       DamageContext damageContext) {
         if (!damageContext.getElement().equals("physical")) return initialDamage;
 
-        AdvancedARPGAttributesAPI api = new AdvancedARPGAttributesAPI();
+        Set<ResourceLocation> armorAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes( Helpers.getSelfOrMinion(damageContext), "defense", "armor");
 
-        Set<ResourceLocation> armorAttributes = api.getFilteredAttributes( Helpers.getSelfOrMinion(damageContext), "defense", "armor");
-
-        float armor = api.getResult(defenderStatContainer, armorAttributes);
+        float armor = AdvancedARPGAttributesAPI.getResult(defenderStatContainer, armorAttributes);
 
         if (initialDamage <= 0) return 0;
 

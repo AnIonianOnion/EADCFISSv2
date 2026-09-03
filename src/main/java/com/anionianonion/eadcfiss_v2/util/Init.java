@@ -5,7 +5,6 @@ import com.anionianonion.damage_pipeline_api.api.DamagePipelineAPI;
 import com.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributesAPI;
 import com.anionianonion.eadcfiss_v2.AnIonianOnionsDamageMegacompatMod;
 import com.anionianonion.eadcfiss_v2.damage_pipeline.after_hit_confirmed.*;
-import com.anionianonion.eadcfiss_v2.damage_pipeline.before_hit_confirmed.SpellDodgeStep;
 import com.anionianonion.elementals_api.api.ElementalsAPI;
 import io.redspace.ironsspellbooks.item.weapons.StaffItem;
 import net.minecraft.resources.ResourceLocation;
@@ -42,54 +41,51 @@ public class Init {
 
     private static void initTags() {
         ElementalsAPI eAPI = new ElementalsAPI();
-        AdvancedARPGAttributesAPI aaaAPI = new AdvancedARPGAttributesAPI();
 
         var elements = eAPI.getAllElements();
-        var validWeapons = aaaAPI.getValidWeapons();
+        var validWeapons = AdvancedARPGAttributesAPI.getValidWeapons();
+        var validDamageSources = DamagePipelineAPI.getValidDamageSourceTypeTags();
 
-        aaaAPI.getValidTags().addAll(validWeapons);
-        aaaAPI.getValidTags().addAll(elements);
-        aaaAPI.registerTag("attack");
-        aaaAPI.registerTag("spell");
-        aaaAPI.registerTag("melee");
-        aaaAPI.registerTag("projectile");
-        aaaAPI.registerTag("aoe");
+        AdvancedARPGAttributesAPI.getValidTags().addAll(validWeapons);
+        AdvancedARPGAttributesAPI.getValidTags().addAll(elements);
+        AdvancedARPGAttributesAPI.getValidTags().addAll(validDamageSources);
+
+        AdvancedARPGAttributesAPI.registerTag("attack");
+        AdvancedARPGAttributesAPI.registerTag("spell");
+        AdvancedARPGAttributesAPI.registerTag("melee");
+        AdvancedARPGAttributesAPI.registerTag("projectile");
+        AdvancedARPGAttributesAPI.registerTag("aoe");
         //I forgot this tag below, which is why damage was 0.
-        aaaAPI.registerTag("damage");
+        AdvancedARPGAttributesAPI.registerTag("damage");
 
-        aaaAPI.registerTag("resistance");
-        aaaAPI.registerTag("penetration");
-        aaaAPI.registerTag("exposure");
-        aaaAPI.registerTag("crit");
-        aaaAPI.registerTag("chance");
-        aaaAPI.registerTag("dot"); //damage over time
-        aaaAPI.registerTag("dealt");
-        aaaAPI.registerTag("taken");
-        aaaAPI.registerTag("suppression");
-        aaaAPI.registerTag("life");
-        aaaAPI.registerTag("dodge");
+        AdvancedARPGAttributesAPI.registerTag("resistance");
+        AdvancedARPGAttributesAPI.registerTag("penetration");
+        AdvancedARPGAttributesAPI.registerTag("exposure");
+        AdvancedARPGAttributesAPI.registerTag("crit");
+        AdvancedARPGAttributesAPI.registerTag("chance");
+        AdvancedARPGAttributesAPI.registerTag("dot"); //damage over time
+        AdvancedARPGAttributesAPI.registerTag("dealt");
+        AdvancedARPGAttributesAPI.registerTag("taken");
+        AdvancedARPGAttributesAPI.registerTag("suppression");
+        AdvancedARPGAttributesAPI.registerTag("life");
+        AdvancedARPGAttributesAPI.registerTag("dodge");
 
         //decided to have these tags individually as well
-        aaaAPI.registerTag("defense");
-        aaaAPI.registerTag("armor");
-        aaaAPI.registerTag("evasion");
-        aaaAPI.registerTag("energy_shield");
-        aaaAPI.registerTag("ward");
+        AdvancedARPGAttributesAPI.registerTag("defense");
+        AdvancedARPGAttributesAPI.registerTag("armor");
+        AdvancedARPGAttributesAPI.registerTag("evasion");
+        AdvancedARPGAttributesAPI.registerTag("energy_shield");
+        AdvancedARPGAttributesAPI.registerTag("ward");
 
-        aaaAPI.registerTag("immunity");
-
-        aaaAPI.registerTag("minion");
-        aaaAPI.registerTag("self");
+        AdvancedARPGAttributesAPI.registerTag("immunity");
     }
 
 
     private static void initAttributes() {
 
-        AdvancedARPGAttributesAPI aaaAPI = new AdvancedARPGAttributesAPI();
-
         initBasicAttributes();
         //this is used so that we can avoid a concurrent modification exception.
-        var allBasicAttributes = new HashMap<>(aaaAPI.getRegistry());
+        var allBasicAttributes = new HashMap<>(AdvancedARPGAttributesAPI.getRegistry());
 
         initMinionAttributes(allBasicAttributes);
         markOriginalBasicAttributesRegistryWithSelfTag(allBasicAttributes);
@@ -100,11 +96,10 @@ public class Init {
     }
 
     private static void markOriginalBasicAttributesRegistryWithSelfTag(HashMap<ResourceLocation, AdvancedARPGAttribute> allBasicAttributes) {
-        AdvancedARPGAttributesAPI aaaAPI = new AdvancedARPGAttributesAPI();
 
         //take keys from basic attributes and use it to get the AAAttribute from the original registry.
         for(var key : allBasicAttributes.keySet()) {
-            AdvancedARPGAttribute advancedARPGAttribute = aaaAPI.getRegistry().get(key);
+            AdvancedARPGAttribute advancedARPGAttribute = AdvancedARPGAttributesAPI.getRegistry().get(key);
             var oldTags = advancedARPGAttribute.getTags();
             var newTags = new HashSet<>(oldTags);
             newTags.add("self");
@@ -140,77 +135,72 @@ public class Init {
 
     private static void initBasicAttributes() {
         ElementalsAPI eAPI = new ElementalsAPI();
-        AdvancedARPGAttributesAPI aaaAPI = new AdvancedARPGAttributesAPI();
 
         var elements = eAPI.getAllElements();
-        var weapons = aaaAPI.getValidWeapons();
+        var weapons = AdvancedARPGAttributesAPI.getValidWeapons();
 
         var attackDamage = new AdvancedARPGAttribute(ResourceLocation.tryParse("minecraft:generic.attack_damage"), Set.of("physical", "attack", "damage"));
         attackDamage.setBaseValue(1);
-        aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:projectile_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(INCREASED, MORE), Set.of("attack", "projectile", "damage"));
-        aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:melee_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(INCREASED, MORE), Set.of("attack", "melee", "damage"));
-        aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:spell_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(INCREASED, MORE), Set.of("spell", "damage"));
-        aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:minion_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(INCREASED, MORE), Set.of("minion", "damage"));
+        AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:projectile_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(INCREASED, MORE), Set.of("attack", "projectile", "damage"));
+        AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:melee_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(INCREASED, MORE), Set.of("attack", "melee", "damage"));
+        AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:spell_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(INCREASED, MORE), Set.of("spell", "damage"));
+        AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:minion_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(INCREASED, MORE), Set.of("minion", "damage"));
 
-        aaaAPI.regAttribute(ResourceLocation.tryParse("minecraft:generic.armor"), Set.of("defense", "armor"));
-        aaaAPI.regAttribute(ResourceLocation.tryParse("minecraft:generic.max_health"), Set.of("life"));
+        AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse("minecraft:generic.armor"), Set.of("defense", "armor"));
+        AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse("minecraft:generic.max_health"), Set.of("life"));
 
         //elemental damage attributes only have increases and more modifiers,
         //but attacks, spells, projectile attacks, melee attacks and weapon attacks have attributes that buff their flat initial value.
         for(var element : elements) {
-            aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(INCREASED, MORE), Set.of(element, "damage"));
-            aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_projectile_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(element, "attack", "projectile", "damage"));
-            aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_melee_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(element, "attack", "melee", "damage"));
-            aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_immunity", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(ADDED), Set.of(element, "immunity"));
+            AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(INCREASED, MORE), Set.of(element, "damage"));
+            AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_projectile_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(element, "attack", "projectile", "damage"));
+            AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_melee_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(element, "attack", "melee", "damage"));
+            AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_immunity", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(ADDED), Set.of(element, "immunity"));
 
             for(var weapon : weapons) {
-                aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_%s_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, element, weapon)), Set.of(element, weapon, "attack", "damage"));
+                AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_%s_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, element, weapon)), Set.of(element, weapon, "attack", "damage"));
             }
 
-            aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_spell_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(element, "spell", "damage"));
+            AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_spell_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(element, "spell", "damage"));
         }
 
         var elementsMinusPhysical = new HashSet<>(elements);
         elementsMinusPhysical.remove("physical");
 
         for(var element : elementsMinusPhysical) {
-            aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(element, "attack", "damage"));
-            aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(element, "resistance"));
-            aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_penetration", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(element, "penetration"));
-            aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_exposure", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(element, "exposure"));
+            AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(element, "attack", "damage"));
+            AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(element, "resistance"));
+            AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_penetration", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(element, "penetration"));
+            AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_exposure", AnIonianOnionsDamageMegacompatMod.MOD_ID, element)), Set.of(element, "exposure"));
         }
 
         for(var weapon : weapons) {
-            aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, weapon)), Set.of(INCREASED, MORE), Set.of(weapon, "attack", "damage"));
+            AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, weapon)), Set.of(INCREASED, MORE), Set.of(weapon, "attack", "damage"));
         }
 
         var critChance = new AdvancedARPGAttribute(ResourceLocation.tryParse(String.format("%s:crit_chance", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of("crit", "chance"));
         critChance.setBaseValue(0.05f);
-        aaaAPI.regAttribute(ResourceLocation.tryParse("attributeslib:crit_chance"), Set.of("crit", "chance"));
+        AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse("attributeslib:crit_chance"), Set.of("crit", "chance"));
 
         var critDamage = new AdvancedARPGAttribute(ResourceLocation.tryParse(String.format("%s:crit_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of("crit", "damage", "dealt"));
         critDamage.setBaseValue(1.5f);
-        aaaAPI.regAttribute(ResourceLocation.tryParse("attributeslib:crit_damage"), Set.of("crit", "damage", "dealt"));
-        aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:crit_damage_taken", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of("crit", "damage", "taken"));
+        AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse("attributeslib:crit_damage"), Set.of("crit", "damage", "dealt"));
+        AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:crit_damage_taken", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of("crit", "damage", "taken"));
 
-        aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:spell_suppression_chance", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(ADDED), Set.of("spell", "suppression", "chance"));
-        aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:spell_suppression", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(ADDED), Set.of("spell", "suppression", "taken"));
-        aaaAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:spell_dodge_chance", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(ADDED), Set.of("spell", "dodge", "chance"));
+        AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:spell_suppression_chance", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(ADDED), Set.of("spell", "suppression", "chance"));
+        AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:spell_suppression", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(ADDED), Set.of("spell", "suppression", "taken"));
+        AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:spell_dodge_chance", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(ADDED), Set.of("spell", "dodge", "chance"));
 
     }
 
     private static void validateAttributes() {
-        AdvancedARPGAttributesAPI aaaAPI = new AdvancedARPGAttributesAPI();
-
-        aaaAPI.validateAttributes();
+        AdvancedARPGAttributesAPI.validateAttributes();
     }
 
     private static void initDamagePipeline() {
 
-        DamagePipelineAPI dpAPI = new DamagePipelineAPI();
-
         //dpAPI.addPreHitDamageStep(new SpellDodgeStep());
-        dpAPI.addDamageStep(new AttackerInitialDamageStep());
+        DamagePipelineAPI.addDamageStep(new AttackerInitialDamageStep());
         /*
         dpAPI.addDamageStep(new CritStep());
         dpAPI.addDamageStep(new ArmorStep());
@@ -219,33 +209,35 @@ public class Init {
 
          */
 
-        dpAPI.addValidDamageSourceTypeTag("self");
-        dpAPI.addValidDamageSourceTypeTag("minion");
+        initValidDamageSourceTypesTags();
+    }
+
+    private static void initValidDamageSourceTypesTags() {
+        DamagePipelineAPI.addValidDamageSourceTypeTag("self");
+        DamagePipelineAPI.addValidDamageSourceTypeTag("minion");
     }
 
     private static void initSpecialAttributeCapFunctions() {
-        AdvancedARPGAttributesAPI api = new AdvancedARPGAttributesAPI();
-
-        api.addPlayerExecutedFunctionToAttribute(Attributes.MAX_HEALTH, (player, lockedAttributeValue) -> {
+        AdvancedARPGAttributesAPI.addPlayerExecutedFunctionToAttribute(Attributes.MAX_HEALTH, (player, lockedAttributeValue) -> {
             if(player.isAlive()) player.setHealth(lockedAttributeValue);
         });
     }
 
     private static void initClassesOfWeaponsAndTags() {
-        AdvancedARPGAttributesAPI api = new AdvancedARPGAttributesAPI();
 
-        api.registerWeaponClassAndTag(SwordItem.class, "sword");
-        api.registerWeaponClassAndTag(BowItem.class, "bow");
-        api.registerWeaponClassAndTag(CrossbowItem.class, "crossbow");
-        api.registerWeaponClassAndTag(TridentItem.class, "trident");
-        api.registerWeaponClassAndTag(AxeItem.class, "axe");
-        api.registerWeaponClassAndTag(StaffItem.class, "staff");
+        AdvancedARPGAttributesAPI.registerWeaponClassAndTag(SwordItem.class, "sword");
+        AdvancedARPGAttributesAPI.registerWeaponClassAndTag(BowItem.class, "bow");
+        AdvancedARPGAttributesAPI.registerWeaponClassAndTag(CrossbowItem.class, "crossbow");
+        AdvancedARPGAttributesAPI.registerWeaponClassAndTag(TridentItem.class, "trident");
+        AdvancedARPGAttributesAPI.registerWeaponClassAndTag(AxeItem.class, "axe");
+        AdvancedARPGAttributesAPI.registerWeaponClassAndTag(StaffItem.class, "staff");
     }
 
     public static void init() {
 
         initElements();
         initClassesOfWeaponsAndTags();
+        initValidDamageSourceTypesTags();
         initTags();
         initAttributes();
         validateAttributes();

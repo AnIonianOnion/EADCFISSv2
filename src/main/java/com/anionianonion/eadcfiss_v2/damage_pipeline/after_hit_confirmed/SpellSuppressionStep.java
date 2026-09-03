@@ -17,19 +17,16 @@ public class SpellSuppressionStep implements IDamageStep {
 
     @Override
     public float apply(float initialDamage,
-                       LivingEntity attacker, LivingEntity defender,
                        StatContainer attackerStatContainer, StatContainer defenderStatContainer,
-                       Entity directEntity, DamageContext damageContext) {
+                       DamageContext damageContext) {
 
         if(!damageContext.getTags().contains("spell")) return initialDamage;
 
-        AdvancedARPGAttributesAPI api = new AdvancedARPGAttributesAPI();
+        Set<ResourceLocation> spellSuppressionChanceAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes(Helpers.getSelfOrMinion(damageContext), "spell", "suppression", "chance");
+        Set<ResourceLocation> spellSuppressionAmountAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes(Helpers.getSelfOrMinion(damageContext), "spell", "suppression", "taken");
 
-        Set<ResourceLocation> spellSuppressionChanceAttribute = api.getFilteredAttributes(Helpers.getSelfOrMinion(damageContext), "spell", "suppression", "chance");
-        Set<ResourceLocation> spellSuppressionAmountAttribute = api.getFilteredAttributes(Helpers.getSelfOrMinion(damageContext), "spell", "suppression", "taken");
-
-        float spellSuppressionChance = api.getResult(defenderStatContainer, spellSuppressionChanceAttribute);
-        float spellSuppressionAmount = api.getResult(defenderStatContainer, spellSuppressionAmountAttribute);
+        float spellSuppressionChance = AdvancedARPGAttributesAPI.getResult(defenderStatContainer, spellSuppressionChanceAttribute);
+        float spellSuppressionAmount = AdvancedARPGAttributesAPI.getResult(defenderStatContainer, spellSuppressionAmountAttribute);
 
 
         float suppressionRoll = (float) Math.random();
