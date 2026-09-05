@@ -64,8 +64,6 @@ public class EventHandler {
 
         float totalDamage = 0;
 
-        ElementalsAPI eapi = new ElementalsAPI();
-
         //totalDamage calculation branches for minions and non-minions
         //if the LivingEntity directEntity is what triggered a hit, then we know that a spell isn't what triggered that hit. therefore it's an attack, and also melee.
         if(Helpers.isMinion(directEntity)) {
@@ -77,12 +75,13 @@ public class EventHandler {
             var minionStatContainer = directEntity.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
             if(minionStatContainer == null) return;
 
-            for(var element : eapi.getAllElements()) {
+            for(var element : ElementalsAPI.getAllElementNames()) {
                 damageContext.setElement(element);
 
                 totalDamage += DamagePipeline.dealDamage(livingCasterStatContainer, minionStatContainer, livingDefenderStatContainer, damageContext);
             }
-        } else if (Helpers.isMinion(livingCaster)) {
+        }
+        else if (Helpers.isMinion(livingCaster)) {
 
             var owner = SummonManager.getOwner(livingCaster);
             if(!(owner instanceof LivingEntity summoner)) return;
@@ -98,20 +97,21 @@ public class EventHandler {
 
             summonerDamageContext.setSource("minion");
 
-            for(var element : eapi.getAllElements()) {
+            for(var element : ElementalsAPI.getAllElementNames()) {
                 damageContext.setElement(element);
 
                 totalDamage += DamagePipeline.dealDamage(summonerStatContainer, livingCasterStatContainer, livingDefenderStatContainer, summonerDamageContext);
             }
 
-        } else {
+        }
+        else {
             damageContext.addTag("spell");
 
             var baseDamageModifier = new AttributeModifier(UUID.randomUUID(), "base damage of spell", e.getOriginalAmount(), AttributeModifier.Operation.ADDITION);
             String attributeId = String.format("%s:%s_spell_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, spellElement);
             livingCasterStatContainer.addModifier(baseDamageModifier, attributeId);
 
-            for(var element : eapi.getAllElements()) {
+            for(var element : ElementalsAPI.getAllElementNames()) {
                 damageContext.setElement(element);
 
                 totalDamage += DamagePipeline.dealDamage(null, livingCasterStatContainer, livingDefenderStatContainer, damageContext);
@@ -235,7 +235,7 @@ public class EventHandler {
 
         float totalDamage = 0;
         ElementalsAPI eapi = new ElementalsAPI();
-        for(var element : eapi.getAllElements()) {
+        for(var element : ElementalsAPI.getAllElementNames()) {
             damageContext.setElement(element);
             totalDamage += DamagePipeline.dealDamage(finalOriginStatContainer,
                     finalAttackerStatContainer,

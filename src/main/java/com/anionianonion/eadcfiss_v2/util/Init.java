@@ -5,6 +5,7 @@ import com.anionianonion.damage_pipeline_api.api.DamagePipelineAPI;
 import com.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributesAPI;
 import com.anionianonion.eadcfiss_v2.AnIonianOnionsDamageMegacompatMod;
 import com.anionianonion.eadcfiss_v2.damage_pipeline.after_hit_confirmed.*;
+import com.anionianonion.eadcfiss_v2.damage_pipeline.before_hit_confirmed.SpellDodgeStep;
 import com.anionianonion.elementals_api.api.ElementalsAPI;
 import io.redspace.ironsspellbooks.item.weapons.StaffItem;
 import net.minecraft.resources.ResourceLocation;
@@ -20,29 +21,27 @@ import java.util.Set;
 public class Init {
 
     private static void initElements() {
-        ElementalsAPI eAPI = new ElementalsAPI();
 
-        eAPI.createElement("physical");
-        eAPI.createElement("fire");
-        eAPI.createElement("ice");
-        eAPI.createElement("lightning");
-        eAPI.createElement("holy");
-        eAPI.createElement("ender");
-        eAPI.createElement("blood");
-        eAPI.createElement("nature");
-        eAPI.createElement("evocation");
-        eAPI.createElement("eldritch");
-        eAPI.createElement("sound");
-        eAPI.createElement("geo");
-        eAPI.createElement("aqua");
-        eAPI.createElement("technomancy");
-        eAPI.createElement("abyssal");
+        ElementalsAPI.regElement("physical");
+        ElementalsAPI.regElement("fire");
+        ElementalsAPI.regElement("ice");
+        ElementalsAPI.regElement("lightning");
+        ElementalsAPI.regElement("holy");
+        ElementalsAPI.regElement("ender");
+        ElementalsAPI.regElement("blood");
+        ElementalsAPI.regElement("nature");
+        ElementalsAPI.regElement("evocation");
+        ElementalsAPI.regElement("eldritch");
+        ElementalsAPI.regElement("sound");
+        ElementalsAPI.regElement("geo");
+        ElementalsAPI.regElement("aqua");
+        ElementalsAPI.regElement("technomancy");
+        ElementalsAPI.regElement("abyssal");
     }
 
     private static void initTags() {
-        ElementalsAPI eAPI = new ElementalsAPI();
 
-        var elements = eAPI.getAllElements();
+        var elements = ElementalsAPI.getAllElementNames();
         var validWeapons = AdvancedARPGAttributesAPI.getValidWeapons();
         var validDamageSources = DamagePipelineAPI.getValidDamageSourceTypeTags();
 
@@ -110,7 +109,7 @@ public class Init {
     /**
      * Creates a copy of allBasicAttributes. Each entry key / ResourceLocation has its path prefixed with the tag, and the new
      * AAAttribute has the new tag included in the AAAttribute's tags as well.
-    @param allBasicAttributes base attributes to copy from
+     @param allBasicAttributes base attributes to copy from
      @param tag new tag to include, and to prefix the attribute with, no underscore needed.
      */
     private static void initAttributesWithTag(HashMap<ResourceLocation, AdvancedARPGAttribute> allBasicAttributes, String tag) {
@@ -134,9 +133,8 @@ public class Init {
     }
 
     private static void initBasicAttributes() {
-        ElementalsAPI eAPI = new ElementalsAPI();
 
-        var elements = eAPI.getAllElements();
+        var elements = ElementalsAPI.getAllElementNames();
         var weapons = AdvancedARPGAttributesAPI.getValidWeapons();
 
         var attackDamage = new AdvancedARPGAttribute(ResourceLocation.tryParse("minecraft:generic.attack_damage"), Set.of("physical", "attack", "damage"));
@@ -199,17 +197,12 @@ public class Init {
 
     private static void initDamagePipeline() {
 
-        //dpAPI.addPreHitDamageStep(new SpellDodgeStep());
+        DamagePipelineAPI.addPreHitDamageStep(new SpellDodgeStep());
         DamagePipelineAPI.addDamageStep(new AttackerInitialDamageStep());
-        /*
-        dpAPI.addDamageStep(new CritStep());
-        dpAPI.addDamageStep(new ArmorStep());
-        dpAPI.addDamageStep(new ElementalResistanceStep());;
-        dpAPI.addDamageStep(new SpellSuppressionStep());
-
-         */
-
-        initValidDamageSourceTypesTags();
+        DamagePipelineAPI.addDamageStep(new CritStep());
+        DamagePipelineAPI.addDamageStep(new ArmorStep());
+        DamagePipelineAPI.addDamageStep(new ElementalResistanceStep());;
+        DamagePipelineAPI.addDamageStep(new SpellSuppressionStep());
     }
 
     private static void initValidDamageSourceTypesTags() {
