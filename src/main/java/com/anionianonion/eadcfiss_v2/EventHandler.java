@@ -21,8 +21,6 @@ import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static com.anionianonion.damage_pipeline_api.api.DamagePipelineAPI.determineAndAddWeaponDamageTagToContext;
@@ -177,7 +175,7 @@ public class EventHandler {
         //*P -
         else if(damageSource.getDirectEntity() instanceof Projectile) damageContext.addTag("projectile");
 
-        boolean continuePipeline = true;
+        boolean continuePipeline;
 
         if(Helpers.isMinion(directEntity)) {
 
@@ -234,7 +232,7 @@ public class EventHandler {
         }
 
         float totalDamage = 0;
-        ElementalsAPI eapi = new ElementalsAPI();
+
         for(var element : ElementalsAPI.getAllElementNames()) {
             damageContext.setElement(element);
             totalDamage += DamagePipeline.dealDamage(finalOriginStatContainer,

@@ -197,12 +197,16 @@ public class Init {
 
     private static void initDamagePipeline() {
 
-        DamagePipelineAPI.addPreHitDamageStep(new SpellDodgeStep());
-        DamagePipelineAPI.addDamageStep(new AttackerInitialDamageStep());
-        DamagePipelineAPI.addDamageStep(new CritStep());
-        DamagePipelineAPI.addDamageStep(new ArmorStep());
-        DamagePipelineAPI.addDamageStep(new ElementalResistanceStep());;
-        DamagePipelineAPI.addDamageStep(new SpellSuppressionStep());
+        //DamagePipelineAPI.addPreHitDamageStep(new SpellDodgeStep());
+        //DamagePipelineAPI.addDamageStep(new AttackerInitialDamageStep());
+        DamagePipelineAPI.addDamageStep(new AttackerBaseDamageStep());
+        DamagePipelineAPI.addDamageStep(new ApplyAilmentsStep());
+        DamagePipelineAPI.addDamageStep(new AttackerIncreasedDamageStep());
+        DamagePipelineAPI.addDamageStep(new AttackerMoreDamageStep());
+        //DamagePipelineAPI.addDamageStep(new CritStep());
+        //DamagePipelineAPI.addDamageStep(new ArmorStep());
+        //DamagePipelineAPI.addDamageStep(new ElementalResistanceStep());;
+        //DamagePipelineAPI.addDamageStep(new SpellSuppressionStep());
     }
 
     private static void initValidDamageSourceTypesTags() {
