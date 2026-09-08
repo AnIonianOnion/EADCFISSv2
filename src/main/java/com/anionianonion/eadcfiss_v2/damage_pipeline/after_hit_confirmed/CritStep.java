@@ -18,14 +18,12 @@ public class CritStep implements IDamageStep {
         //though the damage that causes damage over time can crit, damage from damage over time instances themselves cannot
         if(damageContext.getTags().contains("dot")) return initialDamage;
 
-        if(attackerStatContainer == null || defenderStatContainer == null) return initialDamage;
-
-        Set<ResourceLocation> attackerCritChanceAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes(Helpers.getSelfOrMinion(damageContext), "crit", "chance");
-        Set<ResourceLocation> attackerCritDamageAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes(Helpers.getSelfOrMinion(damageContext), "crit", "damage", "dealt");
+        Set<ResourceLocation> attackerCritChanceAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "crit", "chance");
+        Set<ResourceLocation> attackerCritDamageAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "crit", "damage", "dealt");
         float attackerCritChance = AdvancedARPGAttributesAPI.getResult(attackerStatContainer, attackerCritChanceAttributes);
         float attackerCritDamage = AdvancedARPGAttributesAPI.getResult(attackerStatContainer, attackerCritDamageAttributes);
 
-        Set<ResourceLocation> defenderAntiCritDamageAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes(Helpers.getSelfOrMinion(damageContext), "crit", "damage", "taken");
+        Set<ResourceLocation> defenderAntiCritDamageAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "crit", "damage", "taken");
         float defenderAntiCritDamageTaken = AdvancedARPGAttributesAPI.getResult(defenderStatContainer, defenderAntiCritDamageAttribute);
 
         float critRoll = (float) Math.random();

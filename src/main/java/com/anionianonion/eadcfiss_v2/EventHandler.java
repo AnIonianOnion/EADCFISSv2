@@ -12,9 +12,11 @@ import io.redspace.ironsspellbooks.api.events.SpellDamageEvent;
 import io.redspace.ironsspellbooks.capabilities.magic.SummonManager;
 import io.redspace.ironsspellbooks.damage.SpellDamageSource;
 import io.redspace.ironsspellbooks.entity.spells.AoeEntity;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
@@ -23,7 +25,8 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.UUID;
 
-import static com.anionianonion.damage_pipeline_api.api.DamagePipelineAPI.determineAndAddWeaponDamageTagToContext;
+import static com.anionianonion.damage_pipeline_api.api.DamagePipelineAPI.determineAndAddMeleeWeaponDamageTagToContext;
+import static com.anionianonion.damage_pipeline_api.api.DamagePipelineAPI.determineAndAddRangedWeaponDamageTagToContext;
 
 @Mod.EventBusSubscriber(modid = AnIonianOnionsDamageMegacompatMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class EventHandler {
@@ -133,6 +136,9 @@ public class EventHandler {
         //makes sure the thing that triggered the hit is a LivingEntity
         if(!(entity instanceof LivingEntity livingAttackerOrCaster)) return;
 
+        var hand = livingAttackerOrCaster.getUsedItemHand();
+        var itemInHand = livingAttackerOrCaster.getItemInHand(hand).getItem();
+
         //stop damage immunity cheese of the player when player attacks
         if(livingAttackerOrCaster instanceof ServerPlayer serverPlayer) {
             serverPlayer.invulnerableTime = 0;
@@ -147,9 +153,9 @@ public class EventHandler {
         if(damageContext == null || livingAttackerOrCasterStatContainer == null || livingDefenderStatContainer == null) return;
 
         //reset tags to recalculate from a blank slate.
-        damageContext.clearTags();
+        damageContext.reset();
         //assumes hit comes from self, unless specified otherwise
-        damageContext.setSource("self");
+
 
         if(Helpers.isMinion(directEntity) || Helpers.isMinion(livingAttackerOrCaster)) {
             damageContext.setSource("minion");
@@ -161,42 +167,29 @@ public class EventHandler {
             damageContext.addTag("attack"); //probably safe to assume it is an attack, because we made sure to check that the damageSource.getEntity() is a living entity,
             //and the damageSource isn't a spell, so it's probably an attack
 
-            var hand = livingAttackerOrCaster.getUsedItemHand();
-            var itemInHand = livingAttackerOrCaster.getItemInHand(hand).getItem();
-            determineAndAddWeaponDamageTagToContext(itemInHand, damageContext);
-
-            if(damageSource.getDirectEntity() == damageSource.getEntity()) {
+            if(directEntity == entity) {
                 damageContext.addTag("melee");
+                determineAndAddMeleeWeaponDamageTagToContext(itemInHand, damageContext);
             }
             //*P - projectiles can be both attack and spell, so we can escalate its scope one level.
         }
 
-        if(damageSource.getDirectEntity() instanceof AoeEntity) damageContext.addTag("aoe");
+        if(directEntity instanceof AoeEntity) damageContext.addTag("aoe");
         //*P -
-        else if(damageSource.getDirectEntity() instanceof Projectile) damageContext.addTag("projectile");
+        else if(directEntity instanceof Projectile projectile) {
+            damageContext.addTag("projectile");
+            if(damageContext.getTags().contains("attack")) {
+                determineAndAddRangedWeaponDamageTagToContext(itemInHand, damageContext);
+            }
 
-        boolean continuePipeline;
-
-        if(Helpers.isMinion(directEntity)) {
-
-            var minionStatContainer = directEntity.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
-            if(minionStatContainer == null) return;
-
-            continuePipeline = DamagePipeline.didHitSucceed(livingAttackerOrCasterStatContainer, minionStatContainer, livingDefenderStatContainer, damageContext);
-        }
-        else if(Helpers.isMinion(livingAttackerOrCaster)) {
-
-            var summoner = SummonManager.getOwner(livingAttackerOrCaster);
-            if(!(summoner instanceof LivingEntity livingSummoner)) return;
-
-            var summonerStatContainer = livingSummoner.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
-            continuePipeline = DamagePipeline.didHitSucceed(summonerStatContainer, livingAttackerOrCasterStatContainer, livingDefenderStatContainer, damageContext);
-        }
-        else {
-            continuePipeline = DamagePipeline.didHitSucceed(null, livingAttackerOrCasterStatContainer, livingDefenderStatContainer, damageContext);
+            if(projectile instanceof Arrow arrow) {
+                var arrowSpeed = arrow.getDeltaMovement().length();
+                damageContext.setProjectileSpeed((float) arrowSpeed);
+            }
         }
 
-        if(!continuePipeline) e.setCanceled(true);
+        boolean continuePipeline = Helpers.getIfContinuePipeline(directEntity, livingAttackerOrCaster, livingDefender);
+        e.setCanceled(!continuePipeline);
     }
 
 
@@ -233,12 +226,26 @@ public class EventHandler {
 
         float totalDamage = 0;
 
+        /*
         for(var element : ElementalsAPI.getAllElementNames()) {
             damageContext.setElement(element);
             totalDamage += DamagePipeline.dealDamage(finalOriginStatContainer,
                     finalAttackerStatContainer,
                     livingDefenderStatContainer,
                     damageContext);
+        }
+
+         */
+
+        //only for testing to avoid log spam
+        damageContext.setElement("physical");
+        totalDamage += DamagePipeline.dealDamage(finalOriginStatContainer,
+                finalAttackerStatContainer,
+                livingDefenderStatContainer,
+                damageContext);
+
+        if(livingAttacker instanceof ServerPlayer serverPlayer) {
+            serverPlayer.sendSystemMessage(Component.literal("damageContext tags" + damageContext.getTags().toString()));
         }
 
         e.setAmount(totalDamage);

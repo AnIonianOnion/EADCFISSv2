@@ -200,9 +200,10 @@ public class Init {
         //DamagePipelineAPI.addPreHitDamageStep(new SpellDodgeStep());
         //DamagePipelineAPI.addDamageStep(new AttackerInitialDamageStep());
         DamagePipelineAPI.addDamageStep(new AttackerBaseDamageStep());
-        DamagePipelineAPI.addDamageStep(new ApplyAilmentsStep());
+        //DamagePipelineAPI.addDamageStep(new ApplyAilmentsStep());
         DamagePipelineAPI.addDamageStep(new AttackerIncreasedDamageStep());
         DamagePipelineAPI.addDamageStep(new AttackerMoreDamageStep());
+        DamagePipelineAPI.addDamageStep(new ArrowSpeedStep());
         //DamagePipelineAPI.addDamageStep(new CritStep());
         //DamagePipelineAPI.addDamageStep(new ArmorStep());
         //DamagePipelineAPI.addDamageStep(new ElementalResistanceStep());;
@@ -222,12 +223,18 @@ public class Init {
 
     private static void initClassesOfWeaponsAndTags() {
 
-        AdvancedARPGAttributesAPI.registerWeaponClassAndTag(SwordItem.class, "sword");
-        AdvancedARPGAttributesAPI.registerWeaponClassAndTag(BowItem.class, "bow");
-        AdvancedARPGAttributesAPI.registerWeaponClassAndTag(CrossbowItem.class, "crossbow");
-        AdvancedARPGAttributesAPI.registerWeaponClassAndTag(TridentItem.class, "trident");
-        AdvancedARPGAttributesAPI.registerWeaponClassAndTag(AxeItem.class, "axe");
-        AdvancedARPGAttributesAPI.registerWeaponClassAndTag(StaffItem.class, "staff");
+        //melee only
+        AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(SwordItem.class, "sword");
+        AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(AxeItem.class, "axe");
+        AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(StaffItem.class, "staff");
+
+        //melee and ranged
+        AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(TridentItem.class, "trident");
+
+        //ranged only
+        AdvancedARPGAttributesAPI.registerRangedWeaponClassAndTag(BowItem.class, "bow");
+        AdvancedARPGAttributesAPI.registerRangedWeaponClassAndTag(CrossbowItem.class, "crossbow");
+        AdvancedARPGAttributesAPI.registerRangedWeaponClassAndTag(TridentItem.class, "trident");
     }
 
     public static void init() {
