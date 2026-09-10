@@ -4,8 +4,8 @@ import com.anionianonion.advanced_arpg_attributes_api.StatContainer;
 import com.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributesAPI;
 import com.anionianonion.damage_pipeline_api.DamageContext;
 import com.anionianonion.damage_pipeline_api.api.IDamageStep;
-import com.anionianonion.eadcfiss_v2.util.Helpers;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.Set;
 
@@ -14,17 +14,18 @@ public class CritStep implements IDamageStep {
     @Override
     public float apply(float initialDamage,
                        StatContainer attackerStatContainer, StatContainer defenderStatContainer,
+                       LivingEntity livingAttacker, LivingEntity livingDefender,
                        DamageContext damageContext) {
         //though the damage that causes damage over time can crit, damage from damage over time instances themselves cannot
         if(damageContext.getTags().contains("dot")) return initialDamage;
 
         Set<ResourceLocation> attackerCritChanceAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "crit", "chance");
         Set<ResourceLocation> attackerCritDamageAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "crit", "damage", "dealt");
-        float attackerCritChance = AdvancedARPGAttributesAPI.getResult(attackerStatContainer, attackerCritChanceAttributes);
-        float attackerCritDamage = AdvancedARPGAttributesAPI.getResult(attackerStatContainer, attackerCritDamageAttributes);
+        float attackerCritChance = AdvancedARPGAttributesAPI.getResult(livingAttacker, attackerCritChanceAttributes);
+        float attackerCritDamage = AdvancedARPGAttributesAPI.getResult(livingAttacker, attackerCritDamageAttributes);
 
         Set<ResourceLocation> defenderAntiCritDamageAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "crit", "damage", "taken");
-        float defenderAntiCritDamageTaken = AdvancedARPGAttributesAPI.getResult(defenderStatContainer, defenderAntiCritDamageAttribute);
+        float defenderAntiCritDamageTaken = AdvancedARPGAttributesAPI.getResult(livingDefender, defenderAntiCritDamageAttribute);
 
         float critRoll = (float) Math.random();
         float finalDamage = initialDamage;

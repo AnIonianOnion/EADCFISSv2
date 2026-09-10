@@ -1,10 +1,15 @@
 package com.anionianonion.eadcfiss_v2;
 
+import com.anionianonion.advanced_arpg_attributes_api.commands.SeeModifiersCommand;
+import com.anionianonion.eadcfiss_v2.commands.GetAAAttributesCommand;
+import com.anionianonion.eadcfiss_v2.commands.GetAllSpellsCommand;
+import com.anionianonion.eadcfiss_v2.commands.SummonMinionCommand;
 import com.anionianonion.eadcfiss_v2.util.Init;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -41,7 +46,13 @@ public class AnIonianOnionsDamageMegacompatMod
 
     private void commonSetup(final FMLCommonSetupEvent event)
     {
-
+        MinecraftForge.EVENT_BUS.addListener((RegisterCommandsEvent e) ->
+                {
+                    GetAllSpellsCommand.register(e.getDispatcher());
+                    SummonMinionCommand.register(e.getDispatcher());
+                    GetAAAttributesCommand.register(e.getDispatcher());
+                }
+        );
     }
 
     private void addAttributesToLivingEntities(EntityAttributeModificationEvent event) {

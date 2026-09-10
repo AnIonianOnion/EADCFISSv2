@@ -4,7 +4,6 @@ import com.anionianonion.advanced_arpg_attributes_api.StatContainer;
 import com.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributesAPI;
 import com.anionianonion.damage_pipeline_api.DamageContext;
 import com.anionianonion.damage_pipeline_api.api.IDamageStep;
-import com.anionianonion.eadcfiss_v2.util.Helpers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,19 +15,20 @@ public class ElementalResistanceStep implements IDamageStep {
     @Override
     public float apply(float initialDamage,
                        StatContainer attackerStatContainer, StatContainer defenderStatContainer,
+                       LivingEntity livingAttacker, LivingEntity livingDefender,
                        DamageContext damageContext) {
 
         var element = damageContext.getElement();
         if(element.equals("physical")) return initialDamage;
 
-        Set<ResourceLocation> resistanceAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes(Helpers.getSelfOrMinion(damageContext), element, "resistance");
-        float elementalResistance = AdvancedARPGAttributesAPI.getResult(defenderStatContainer, resistanceAttributes);
+        Set<ResourceLocation> resistanceAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", element, "resistance");
+        float elementalResistance = AdvancedARPGAttributesAPI.getResult(livingDefender, resistanceAttributes);
 
-        Set<ResourceLocation> penetrationAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes(Helpers.getSelfOrMinion(damageContext), element, "penetration");
-        float elementalPenetration = AdvancedARPGAttributesAPI.getResult(attackerStatContainer, penetrationAttributes);
+        Set<ResourceLocation> penetrationAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", element, "penetration");
+        float elementalPenetration = AdvancedARPGAttributesAPI.getResult(livingAttacker, penetrationAttributes);
 
-        Set<ResourceLocation> exposureAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes(Helpers.getSelfOrMinion(damageContext), element, "exposure");
-        float elementalExposure = AdvancedARPGAttributesAPI.getResult(defenderStatContainer, exposureAttributes);
+        Set<ResourceLocation> exposureAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", element, "exposure");
+        float elementalExposure = AdvancedARPGAttributesAPI.getResult(livingDefender, exposureAttributes);
 
         float finalResistance = elementalResistance - elementalPenetration - elementalExposure;
         return initialDamage * (1 - finalResistance);

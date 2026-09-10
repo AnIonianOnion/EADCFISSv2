@@ -5,7 +5,6 @@ import com.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributes
 import com.anionianonion.advanced_arpg_attributes_api.capability.StatContainerCapability;
 import com.anionianonion.damage_pipeline_api.DamageContext;
 import com.anionianonion.damage_pipeline_api.api.IDamageStep;
-import com.anionianonion.eadcfiss_v2.util.Helpers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,15 +17,16 @@ public class SpellSuppressionStep implements IDamageStep {
     @Override
     public float apply(float initialDamage,
                        StatContainer attackerStatContainer, StatContainer defenderStatContainer,
+                       LivingEntity livingAttacker, LivingEntity livingDefender,
                        DamageContext damageContext) {
 
         if(!damageContext.getTags().contains("spell")) return initialDamage;
 
-        Set<ResourceLocation> spellSuppressionChanceAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes(Helpers.getSelfOrMinion(damageContext), "spell", "suppression", "chance");
-        Set<ResourceLocation> spellSuppressionAmountAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes(Helpers.getSelfOrMinion(damageContext), "spell", "suppression", "taken");
+        Set<ResourceLocation> spellSuppressionChanceAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "spell", "suppression", "chance");
+        Set<ResourceLocation> spellSuppressionAmountAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "spell", "suppression", "taken");
 
-        float spellSuppressionChance = AdvancedARPGAttributesAPI.getResult(defenderStatContainer, spellSuppressionChanceAttribute);
-        float spellSuppressionAmount = AdvancedARPGAttributesAPI.getResult(defenderStatContainer, spellSuppressionAmountAttribute);
+        float spellSuppressionChance = AdvancedARPGAttributesAPI.getResult(livingDefender, spellSuppressionChanceAttribute);
+        float spellSuppressionAmount = AdvancedARPGAttributesAPI.getResult(livingDefender, spellSuppressionAmountAttribute);
 
 
         float suppressionRoll = (float) Math.random();

@@ -5,7 +5,6 @@ import com.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributes
 import com.anionianonion.advanced_arpg_attributes_api.capability.StatContainerCapability;
 import com.anionianonion.damage_pipeline_api.DamageContext;
 import com.anionianonion.damage_pipeline_api.api.IPreHitDamageStep;
-import com.anionianonion.eadcfiss_v2.util.Helpers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -14,12 +13,14 @@ import java.util.Set;
 public class SpellDodgeStep implements IPreHitDamageStep {
 
     @Override
-    public boolean apply(StatContainer attackerStatContainer, StatContainer defenderStatContainer, DamageContext damageContext) {
+    public boolean apply(StatContainer attackerStatContainer, StatContainer defenderStatContainer,
+                         LivingEntity livingAttacker, LivingEntity livingDefender,
+                         DamageContext damageContext) {
 
         if(!(damageContext.getTags().contains("spell"))) return true;
 
-        Set<ResourceLocation> spellDodgeChanceAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes(Helpers.getSelfOrMinion(damageContext), "spell", "dodge", "chance");
-        float spellDodgeChance = AdvancedARPGAttributesAPI.getResult(defenderStatContainer, spellDodgeChanceAttribute);
+        Set<ResourceLocation> spellDodgeChanceAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "spell", "dodge", "chance");
+        float spellDodgeChance = AdvancedARPGAttributesAPI.getResult(livingDefender, spellDodgeChanceAttribute);
 
         float dodgeRoll = (float) Math.random();
 

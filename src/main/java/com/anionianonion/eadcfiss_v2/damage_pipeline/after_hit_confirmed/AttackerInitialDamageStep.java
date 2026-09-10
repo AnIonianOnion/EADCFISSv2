@@ -7,6 +7,7 @@ import com.anionianonion.damage_pipeline_api.api.DamagePipelineAPI;
 import com.anionianonion.damage_pipeline_api.api.IDamageStep;
 import com.anionianonion.damage_pipeline_api.DamageContext;
 import com.anionianonion.eadcfiss_v2.AnIonianOnionsDamageMegacompatMod;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.HashSet;
 
@@ -16,6 +17,7 @@ public class AttackerInitialDamageStep implements IDamageStep {
     @Override
     public float apply(float initialDamage,
                        StatContainer attackerStatContainer, StatContainer defenderStatContainer,
+                       LivingEntity livingAttacker, LivingEntity livingDefender,
                        DamageContext damageContext) {
 
         //these 4 lines seem to be very important, without it damage is 0
@@ -37,7 +39,7 @@ public class AttackerInitialDamageStep implements IDamageStep {
 
          */
 
-        return AdvancedARPGAttributesAPI.getResult(attackerStatContainer, filteredAttributes);
+        return AdvancedARPGAttributesAPI.getResult(livingAttacker, filteredAttributes);
 
     }
 

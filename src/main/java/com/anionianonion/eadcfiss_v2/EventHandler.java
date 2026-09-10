@@ -5,11 +5,7 @@ import com.anionianonion.advanced_arpg_attributes_api.capability.StatContainerCa
 import com.anionianonion.damage_pipeline_api.DamageContext;
 import com.anionianonion.damage_pipeline_api.DamagePipeline;
 import com.anionianonion.damage_pipeline_api.capability.DamageContextCapability;
-import com.anionianonion.eadcfiss_v2.util.Helpers;
-import com.anionianonion.elementals_api.api.ElementalsAPI;
-import io.redspace.ironsspellbooks.api.entity.IMagicEntity;
-import io.redspace.ironsspellbooks.api.events.SpellDamageEvent;
-import io.redspace.ironsspellbooks.capabilities.magic.SummonManager;
+import com.anionianonion.damage_pipeline_api.util.RandomHelpers;
 import io.redspace.ironsspellbooks.damage.SpellDamageSource;
 import io.redspace.ironsspellbooks.entity.spells.AoeEntity;
 import net.minecraft.network.chat.Component;
@@ -20,13 +16,14 @@ import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.HashMap;
 import java.util.UUID;
 
-import static com.anionianonion.damage_pipeline_api.api.DamagePipelineAPI.determineAndAddMeleeWeaponDamageTagToContext;
-import static com.anionianonion.damage_pipeline_api.api.DamagePipelineAPI.determineAndAddRangedWeaponDamageTagToContext;
+import static com.anionianonion.damage_pipeline_api.api.DamagePipelineAPI.*;
 
 @Mod.EventBusSubscriber(modid = AnIonianOnionsDamageMegacompatMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class EventHandler {
@@ -36,113 +33,24 @@ public class EventHandler {
     //Forge or Minecraft's damage pipeline is split into three events: LivingAttackEvent, LivingHurtEvent and LivingDamageEvent, and we need some way to access a global pipeline,
     // because we can't go through an entire pipeline for each split Minecraft/Forge's own pipeline / different damageContext each time for each event.
 
-
-    @SubscribeEvent
-    public static void onSpellDamage(SpellDamageEvent e) {
-        //This event triggers before all the other damage events, and in this event, we know that damage will for sure be calculated. So we must not let LivingDamageEvent recalculate the damage amount again.
-        var damageSource = e.getSpellDamageSource().get();
-
-        //only handles damage from living entities (entities with a health bar and StatContainer), and not entities like arrows.
-        if(!(damageSource.getEntity() instanceof LivingEntity livingCaster)) return;
-
-        var livingDefender = e.getEntity();
-        var directEntity = damageSource.getDirectEntity();
-
-        DamageContext damageContext = livingCaster.getCapability(DamageContextCapability.INSTANCE).resolve().orElse(null);
-        StatContainer livingCasterStatContainer = livingCaster.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
-        StatContainer livingDefenderStatContainer = livingDefender.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
-
-        if(damageContext == null || livingCasterStatContainer == null || livingDefenderStatContainer == null) return;
-
-        //default settings, because we know it's a spell, and assuming the damage is dealt by the player themself, unless it's stated otherwise.
-        damageContext.clearTags();
-        damageContext.setSource("self");
-
-        var spell = e.getSpellDamageSource().spell();
-
-        //technically the spell school, but it's alr.
-        var spellElement = spell.getSchoolType().getId().getPath();
-
-        float totalDamage = 0;
-
-        //totalDamage calculation branches for minions and non-minions
-        //if the LivingEntity directEntity is what triggered a hit, then we know that a spell isn't what triggered that hit. therefore it's an attack, and also melee.
-        if(Helpers.isMinion(directEntity)) {
-            damageContext.setSource("minion");
-
-            damageContext.addTag("attack");
-            damageContext.addTag("melee");
-
-            var minionStatContainer = directEntity.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
-            if(minionStatContainer == null) return;
-
-            for(var element : ElementalsAPI.getAllElementNames()) {
-                damageContext.setElement(element);
-
-                totalDamage += DamagePipeline.dealDamage(livingCasterStatContainer, minionStatContainer, livingDefenderStatContainer, damageContext);
-            }
-        }
-        else if (Helpers.isMinion(livingCaster)) {
-
-            var owner = SummonManager.getOwner(livingCaster);
-            if(!(owner instanceof LivingEntity summoner)) return;
-
-            var summonerDamageContext = summoner.getCapability(DamageContextCapability.INSTANCE).resolve().orElse(null);
-            var summonerStatContainer = summoner.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
-
-            if(summonerDamageContext == null || summonerStatContainer == null) return;
-
-            //it's probably safe to assume that IMagicEntities can only use spells as projectiles/direct entities
-            if(livingCaster instanceof IMagicEntity) summonerDamageContext.addTag("spell");
-            else summonerDamageContext.addTag("attack");
-
-            summonerDamageContext.setSource("minion");
-
-            for(var element : ElementalsAPI.getAllElementNames()) {
-                damageContext.setElement(element);
-
-                totalDamage += DamagePipeline.dealDamage(summonerStatContainer, livingCasterStatContainer, livingDefenderStatContainer, summonerDamageContext);
-            }
-
-        }
-        else {
-            damageContext.addTag("spell");
-
-            var baseDamageModifier = new AttributeModifier(UUID.randomUUID(), "base damage of spell", e.getOriginalAmount(), AttributeModifier.Operation.ADDITION);
-            String attributeId = String.format("%s:%s_spell_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, spellElement);
-            livingCasterStatContainer.addModifier(baseDamageModifier, attributeId);
-
-            for(var element : ElementalsAPI.getAllElementNames()) {
-                damageContext.setElement(element);
-
-                totalDamage += DamagePipeline.dealDamage(null, livingCasterStatContainer, livingDefenderStatContainer, damageContext);
-            }
-            livingCasterStatContainer.removeModifier(baseDamageModifier, attributeId);
-        }
-
-        e.setAmount(totalDamage);
-    }
-
-    //private static final List<String> minionSpellIds = new ArrayList<>(List.of("irons_spellbooks:summon_polar_bear", "irons_spellbooks:summon_vex", "irons_spellbooks:raise_dead", "irons_spellbooks:summon_swords"));
-
     //having multiple damage contexts in different events like onHit, and onSpellDamage made it confusing, so I decided to move it to only onHit.
     //However, SpellDamageEvent is separate and fires before everything else, so we must also declare tags in that event as well.
+    //nevermind that last part. it's all handled here now.
+
     @SubscribeEvent
     public static void onHit(LivingAttackEvent e) {
         var damageSource = e.getSource();
         var directEntity = damageSource.getDirectEntity();
         var entity = damageSource.getEntity();
 
+        info("entity " + entity + " attacked");
+        info("direct entity " + directEntity + " attacked");
+
         //makes sure the thing that triggered the hit is a LivingEntity
         if(!(entity instanceof LivingEntity livingAttackerOrCaster)) return;
 
         var hand = livingAttackerOrCaster.getUsedItemHand();
         var itemInHand = livingAttackerOrCaster.getItemInHand(hand).getItem();
-
-        //stop damage immunity cheese of the player when player attacks
-        if(livingAttackerOrCaster instanceof ServerPlayer serverPlayer) {
-            serverPlayer.invulnerableTime = 0;
-        }
 
         LivingEntity livingDefender = e.getEntity();
 
@@ -154,104 +62,126 @@ public class EventHandler {
 
         //reset tags to recalculate from a blank slate.
         damageContext.reset();
-        //assumes hit comes from self, unless specified otherwise
+        //there's no more need to setSource to minion upon minion damage
 
+        //self-cast spell-type damage
+        if(damageSource instanceof SpellDamageSource spellDamageSource &&
+                !(RandomHelpers.isMinion(directEntity) || RandomHelpers.isMinion(livingAttackerOrCaster))
+        ) {
 
-        if(Helpers.isMinion(directEntity) || Helpers.isMinion(livingAttackerOrCaster)) {
-            damageContext.setSource("minion");
+            damageContext.addTag("spell");
+            var baseDamageModifier = new AttributeModifier(UUID.randomUUID(), "base damage of spell", e.getAmount(), AttributeModifier.Operation.ADDITION);
+            var spellElement = spellDamageSource.spell().getSchoolType().getId().getPath();
+            String attributeId = String.format("%s:%s_spell_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, spellElement);
+            livingAttackerOrCasterStatContainer.addModifier(baseDamageModifier, attributeId);
+            bonusSpelLDamageModifiers.put(livingAttackerOrCaster.getUUID(), baseDamageModifier);
+
         }
 
-        if(damageSource instanceof SpellDamageSource) damageContext.addTag("spell");
-        //
         else {
-            damageContext.addTag("attack"); //probably safe to assume it is an attack, because we made sure to check that the damageSource.getEntity() is a living entity,
-            //and the damageSource isn't a spell, so it's probably an attack
+            damageContext.addTag("attack");
 
+            //should never fire in the case of minions because
+                //if minion melee attack: directEntity is minion and entity is the minion's summoner. both are different
+                //and if melee ranged attack, directEntity is the projectile, and entity is the minion. both are different
+
+            //self-melee
             if(directEntity == entity) {
                 damageContext.addTag("melee");
                 determineAndAddMeleeWeaponDamageTagToContext(itemInHand, damageContext);
+            }
+            //minion melee
+            else if(RandomHelpers.isMinion(directEntity)) {
+                damageContext.addTag("melee");
+                var minion = (LivingEntity) directEntity;
+                var minionHand = minion.getUsedItemHand();
+                var minionHandItem = minion.getItemInHand(minionHand).getItem();
+
+                info(minionHandItem.toString());
+
+                determineAndAddMeleeWeaponDamageTagToContext(minionHandItem, damageContext);
+            }
+            //minion ranged
+            else if(RandomHelpers.isMinion(livingAttackerOrCaster) && directEntity instanceof Projectile projectile) {
+
+                var minionHand = livingAttackerOrCaster.getUsedItemHand();
+                var minionHandItem = livingAttackerOrCaster.getItemInHand(minionHand).getItem();
+
+                info(minionHandItem.toString());
+
+                damageContext.addTag("projectile");
+                determineAndAddRangedWeaponDamageTagToContext(minionHandItem, damageContext);
+
+                if(projectile instanceof Arrow arrow) {
+                    var arrowSpeed = arrow.getDeltaMovement().length();
+                    damageContext.setProjectileSpeed((float) arrowSpeed);
+                }
+            }
+            //self ranged
+            else if (directEntity instanceof Projectile projectile) {
+
+                determineAndAddRangedWeaponDamageTagToContext(itemInHand, damageContext);
+                if(projectile instanceof Arrow arrow) {
+                    var arrowSpeed = arrow.getDeltaMovement().length();
+                    damageContext.setProjectileSpeed((float) arrowSpeed);
+                }
             }
             //*P - projectiles can be both attack and spell, so we can escalate its scope one level.
         }
 
         if(directEntity instanceof AoeEntity) damageContext.addTag("aoe");
         //*P -
-        else if(directEntity instanceof Projectile projectile) {
+        else if(directEntity instanceof Projectile) {
             damageContext.addTag("projectile");
-            if(damageContext.getTags().contains("attack")) {
-                determineAndAddRangedWeaponDamageTagToContext(itemInHand, damageContext);
-            }
-
-            if(projectile instanceof Arrow arrow) {
-                var arrowSpeed = arrow.getDeltaMovement().length();
-                damageContext.setProjectileSpeed((float) arrowSpeed);
-            }
         }
 
-        boolean continuePipeline = Helpers.getIfContinuePipeline(directEntity, livingAttackerOrCaster, livingDefender);
+        //stop damage immunity cheese of the player when player attacks
+        if(livingAttackerOrCaster instanceof ServerPlayer serverPlayer) {
+            serverPlayer.invulnerableTime = 0;
+        }
+
+        if(livingAttackerOrCaster instanceof ServerPlayer serverPlayer) {
+            serverPlayer.sendSystemMessage(Component.literal("damage Context tags: " + damageContext.getTags()));
+        }
+        else {
+            info("damageContext tags: " + damageContext.getTags());
+        }
+
+
+        boolean continuePipeline = DamagePipeline.didHitSucceed(e);
         e.setCanceled(!continuePipeline);
     }
 
 
     @SubscribeEvent
-    public static void onAttackDamage(LivingDamageEvent e) {
-        var damageSource = e.getSource();
-        var livingDefender = e.getEntity();
-        var directEntity = damageSource.getDirectEntity();
-
-        if(!(damageSource.getEntity() instanceof LivingEntity livingAttacker)) return;
-        if(damageSource instanceof SpellDamageSource) return; //Spell damage is and can only be handled by our onSpellDamageEvent.
-
-        DamageContext damageContext = livingAttacker.getCapability(DamageContextCapability.INSTANCE).resolve().orElse(null);
-        StatContainer livingAttackerStatContainer = livingAttacker.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
-        StatContainer livingDefenderStatContainer = livingDefender.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
-
-        if(damageContext == null || livingAttackerStatContainer == null || livingDefenderStatContainer == null) return;
-
-        StatContainer finalOriginStatContainer = null;
-        StatContainer finalAttackerStatContainer;
-
-        if(Helpers.isMinion(directEntity)) {
-            finalAttackerStatContainer = directEntity.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
-            if(finalAttackerStatContainer == null) return;
-
-            finalOriginStatContainer = livingAttackerStatContainer;
-        }
-        else {
-            if(Helpers.isMinion(livingAttacker) && SummonManager.getOwner(livingAttacker) instanceof LivingEntity livingSummoner) {
-                finalOriginStatContainer = livingSummoner.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
-            }
-            finalAttackerStatContainer = livingAttackerStatContainer;
-        }
-
-        float totalDamage = 0;
-
-        /*
-        for(var element : ElementalsAPI.getAllElementNames()) {
-            damageContext.setElement(element);
-            totalDamage += DamagePipeline.dealDamage(finalOriginStatContainer,
-                    finalAttackerStatContainer,
-                    livingDefenderStatContainer,
-                    damageContext);
-        }
-
-         */
-
-        //only for testing to avoid log spam
-        damageContext.setElement("physical");
-        totalDamage += DamagePipeline.dealDamage(finalOriginStatContainer,
-                finalAttackerStatContainer,
-                livingDefenderStatContainer,
-                damageContext);
-
-        if(livingAttacker instanceof ServerPlayer serverPlayer) {
-            serverPlayer.sendSystemMessage(Component.literal("damageContext tags" + damageContext.getTags().toString()));
-        }
-
+    public static void onDamage(LivingDamageEvent e) {
+        float totalDamage = DamagePipeline.dealDamage(e);
         e.setAmount(totalDamage);
+
+        //remove potentially added spell base damage modifier from spells
+        var attacker = e.getSource().getEntity();
+        if(!(attacker instanceof LivingEntity livingAttacker)) return;
+
+        var livingAttackerStatContainer = livingAttacker.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
+        if(livingAttackerStatContainer == null) return;
+
+        var uuid = livingAttacker.getUUID();
+
+        livingAttackerStatContainer.getAddedModifiers().values().remove(bonusSpelLDamageModifiers.get(uuid));
+        livingAttackerStatContainer.getIncreaseModifiers().values().remove(bonusSpelLDamageModifiers.get(uuid));
+        livingAttackerStatContainer.getMoreModifiers().values().remove(bonusSpelLDamageModifiers.get(uuid));
+
+        bonusSpelLDamageModifiers.remove(e.getSource().getEntity().getUUID());
     }
 
     public static void info(String log) {
         AnIonianOnionsDamageMegacompatMod.LOGGER.info(log);
+    }
+
+    //livingEntity uuid to attribute modifier mapper.
+    private static final HashMap<UUID, AttributeModifier> bonusSpelLDamageModifiers = new HashMap<>();
+
+    @SubscribeEvent public static void onLivingEntityDeath(LivingDeathEvent e) {
+        bonusSpelLDamageModifiers.remove(e.getEntity().getUUID());
     }
 }

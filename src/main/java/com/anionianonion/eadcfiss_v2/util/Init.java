@@ -137,12 +137,16 @@ public class Init {
         var elements = ElementalsAPI.getAllElementNames();
         var weapons = AdvancedARPGAttributesAPI.getValidWeapons();
 
-        var attackDamage = new AdvancedARPGAttribute(ResourceLocation.tryParse("minecraft:generic.attack_damage"), Set.of("physical", "attack", "damage"));
-        attackDamage.setBaseValue(1);
+        var physicalMeleeAttackDamage = new AdvancedARPGAttribute(ResourceLocation.tryParse("minecraft:generic.attack_damage"), Set.of("physical", "melee", "attack", "damage"));
+        physicalMeleeAttackDamage.setInheritBase(true);
+
+        //MULTIPLY_BASE & MULTIPLY_TOTAL attributes only
+        //applies to any element's damage for projectiles, melee
         AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:projectile_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(INCREASED, MORE), Set.of("attack", "projectile", "damage"));
         AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:melee_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(INCREASED, MORE), Set.of("attack", "melee", "damage"));
         AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:spell_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(INCREASED, MORE), Set.of("spell", "damage"));
-        AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:minion_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(INCREASED, MORE), Set.of("minion", "damage"));
+        //realized damage type that applies to anything didn't have a modifier. the nice part about this change, is that when initMinion attributes called, it will create minion_damage instead of minion_minion_damage. 2 birds with 1 stone.
+        AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(INCREASED, MORE), Set.of("damage"));
 
         AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse("minecraft:generic.armor"), Set.of("defense", "armor"));
         AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse("minecraft:generic.max_health"), Set.of("life"));
@@ -189,6 +193,12 @@ public class Init {
         AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:spell_suppression", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(ADDED), Set.of("spell", "suppression", "taken"));
         AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:spell_dodge_chance", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(ADDED), Set.of("spell", "dodge", "chance"));
 
+
+        //removing duplicate modifier for physical melee damage (the other is minecraft:generic.attack_damage which functions identically).
+        AdvancedARPGAttributesAPI.getRegistry().remove(ResourceLocation.tryParse(String.format("%s:physical_melee_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)));
+
+        //setting base arrow damage, which is otherwise 0.
+        AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:physical_projectile_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID))).setBaseValue(1f);
     }
 
     private static void validateAttributes() {
