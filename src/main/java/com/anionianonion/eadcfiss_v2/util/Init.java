@@ -198,7 +198,7 @@ public class Init {
         AdvancedARPGAttributesAPI.getRegistry().remove(ResourceLocation.tryParse(String.format("%s:physical_melee_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)));
 
         //setting base arrow damage, which is otherwise 0.
-        AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:physical_projectile_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID))).setBaseValue(1f);
+        AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:physical_projectile_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID))).setBaseValue(2f);
     }
 
     private static void validateAttributes() {

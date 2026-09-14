@@ -1,6 +1,5 @@
 package com.anionianonion.eadcfiss_v2;
 
-import com.anionianonion.advanced_arpg_attributes_api.AdvancedARPGAttribute;
 import com.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributesAPI;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
@@ -15,16 +14,12 @@ public class ModAttributes {
     public static void register(IEventBus eventBus) {
 
         for(var aaaAtribute : AdvancedARPGAttributesAPI.getRegistry().keySet()) {
-
             var namespace = aaaAtribute.getNamespace();
             if(!namespace.equals(AnIonianOnionsDamageMegacompatMod.MOD_ID)) continue;
 
             var path = aaaAtribute.getPath();
-
-            ATTRIBUTES_REGISTRY.register(path, () -> new RangedAttribute(String.format("attribute.%s", path), 0, 0, Double.POSITIVE_INFINITY));
-
+            ATTRIBUTES_REGISTRY.register(path, () -> new RangedAttribute(String.format("attribute.%s.name", path), 0, 0, Double.POSITIVE_INFINITY));
         }
-
         ATTRIBUTES_REGISTRY.register(eventBus);
     }
 }

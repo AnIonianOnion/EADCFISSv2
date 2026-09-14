@@ -12,7 +12,8 @@ public class ArrowSpeedStep implements IDamageStep {
                        LivingEntity livingAttacker, LivingEntity livingDefender,
                        DamageContext damageContext) {
 
-        if(!damageContext.getTags().contains("bow")) return initialDamage;
-        return initialDamage * damageContext.getProjectileSpeed();
+        //based on https://www.reddit.com/r/technicalminecraft/comments/488gc9/arrow_damage_calculation/
+        if(!damageContext.getTags().contains("bow") && !damageContext.getTags().contains("crossbow")) return initialDamage;
+        return (float) (initialDamage * Math.sqrt(damageContext.getProjectileSpeed()));
     }
 }
