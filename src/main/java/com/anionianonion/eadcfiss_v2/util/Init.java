@@ -7,6 +7,7 @@ import com.anionianonion.eadcfiss_v2.AnIonianOnionsDamageMegacompatMod;
 import com.anionianonion.eadcfiss_v2.damage_pipeline.after_hit_confirmed.*;
 import com.anionianonion.eadcfiss_v2.damage_pipeline.before_hit_confirmed.SpellDodgeStep;
 import com.anionianonion.elementals_api.api.ElementalsAPI;
+import com.anionianonion.elementals_api.data_classes.Ailment;
 import io.redspace.ironsspellbooks.item.weapons.StaffItem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -37,6 +38,33 @@ public class Init {
         ElementalsAPI.regElement("aqua");
         ElementalsAPI.regElement("technomancy");
         ElementalsAPI.regElement("abyssal");
+    }
+
+    private static void initAilments() {
+        Ailment bleed = new Ailment("bleed", true, false, 1, false);
+        ElementalsAPI.regAilment(bleed);
+
+        Ailment burn = new Ailment("burn", true, true, 1, false);
+        ElementalsAPI.regAilment(burn);
+
+        Ailment scorch = new Ailment("scorch", false, true, 1, false);
+        ElementalsAPI.regAilment(scorch);
+
+        //alt registration
+        ElementalsAPI.regAilment("frostbite");
+        ElementalsAPI.regAilment("chill");
+        ElementalsAPI.regAilment("freeze");
+        ElementalsAPI.regAilment("brittle");
+        ElementalsAPI.regAilment("shock");
+        ElementalsAPI.regAilment("electrocution");
+        ElementalsAPI.regAilment("paralysis");
+        ElementalsAPI.regAilment("sap");
+        ElementalsAPI.regAilment("petrify");
+        ElementalsAPI.regAilment("poison");
+        ElementalsAPI.regAilment("ghostflame");
+
+        ElementalsAPI.setElementsForElementCategory(Set.of("fire", "ice", "lightning"), "elemental");
+        ElementalsAPI.setAilmentsForElement(Set.of("burn"), "fire");
     }
 
     private static void initTags() {

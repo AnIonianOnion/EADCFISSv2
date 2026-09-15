@@ -39,6 +39,13 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void onHit(LivingAttackEvent e) {
+
+        //new problems of DoTs
+            //can't clear damage context, because we are in the middle of the pipeline, as we are using base damage
+                //maybe it's better if damageContext isn't stored on the living entity?
+            //need to get the element of the DoT somehow
+            //and a way to know that it is a DoT.
+
         var damageSource = e.getSource();
         var directEntity = damageSource.getDirectEntity();
         var entity = damageSource.getEntity();
