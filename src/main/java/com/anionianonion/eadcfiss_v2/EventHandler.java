@@ -6,6 +6,8 @@ import com.anionianonion.damage_pipeline_api.DamageContext;
 import com.anionianonion.damage_pipeline_api.DamagePipeline;
 import com.anionianonion.damage_pipeline_api.capability.DamageContextCapability;
 import com.anionianonion.damage_pipeline_api.util.RandomHelpers;
+import com.anionianonion.elementals_api.AilmentDamageSource;
+import com.anionianonion.elementals_api.capability.AilmentDataContainerCapability;
 import io.redspace.ironsspellbooks.damage.SpellDamageSource;
 import io.redspace.ironsspellbooks.entity.spells.AoeEntity;
 import net.minecraft.network.chat.Component;
@@ -14,16 +16,21 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.anionianonion.damage_pipeline_api.api.DamagePipelineAPI.*;
+import static com.anionianonion.eadcfiss_v2.util.Helper.info;
 
 @Mod.EventBusSubscriber(modid = AnIonianOnionsDamageMegacompatMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class EventHandler {
@@ -54,7 +61,7 @@ public class EventHandler {
         info("direct entity " + directEntity + " attacked");
 
         //makes sure the thing that triggered the hit is a LivingEntity
-        if(!(entity instanceof LivingEntity livingAttackerOrCaster)) return;
+        if(!(entity instanceof LivingEntity livingAttackerOrCaster) || damageSource instanceof AilmentDamageSource) return;
 
         var hand = livingAttackerOrCaster.getUsedItemHand();
         var itemInHand = livingAttackerOrCaster.getItemInHand(hand).getItem();
@@ -159,7 +166,6 @@ public class EventHandler {
         e.setCanceled(!continuePipeline);
     }
 
-
     @SubscribeEvent
     public static void onDamage(LivingDamageEvent e) {
         float totalDamage = DamagePipeline.dealDamage(e);
@@ -181,8 +187,13 @@ public class EventHandler {
         bonusSpelLDamageModifiers.remove(e.getSource().getEntity().getUUID());
     }
 
-    public static void info(String log) {
-        AnIonianOnionsDamageMegacompatMod.LOGGER.info(log);
+    @SubscribeEvent
+    public static void onLivingTick(LivingEvent.LivingTickEvent e) {
+        var livingEntity = e.getEntity();
+        var ailmentDataContainer = livingEntity.getCapability(AilmentDataContainerCapability.INSTANCE).resolve().orElse(null);
+
+        if(ailmentDataContainer == null) return;
+        ailmentDataContainer.tick();
     }
 
     //livingEntity uuid to attribute modifier mapper.

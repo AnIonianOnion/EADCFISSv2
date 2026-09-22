@@ -4,14 +4,16 @@ import com.anionianonion.advanced_arpg_attributes_api.AdvancedARPGAttribute;
 import com.anionianonion.damage_pipeline_api.api.DamagePipelineAPI;
 import com.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributesAPI;
 import com.anionianonion.eadcfiss_v2.AnIonianOnionsDamageMegacompatMod;
+import com.anionianonion.eadcfiss_v2.ModDamageTypes;
 import com.anionianonion.eadcfiss_v2.damage_pipeline.after_hit_confirmed.*;
-import com.anionianonion.eadcfiss_v2.damage_pipeline.before_hit_confirmed.SpellDodgeStep;
+import com.anionianonion.elementals_api.AilmentDamageSource;
 import com.anionianonion.elementals_api.api.ElementalsAPI;
 import com.anionianonion.elementals_api.data_classes.Ailment;
 import io.redspace.ironsspellbooks.item.weapons.StaffItem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.*;
+import org.jetbrains.annotations.NotNull;
 
 import static com.anionianonion.advanced_arpg_attributes_api.AdvancedARPGAttribute.ModifierType.*;
 
@@ -41,13 +43,23 @@ public class Init {
     }
 
     private static void initAilments() {
-        Ailment bleed = new Ailment("bleed", true, false, 1, false);
-        ElementalsAPI.regAilment(bleed);
 
-        Ailment burn = new Ailment("burn", true, true, 1, false);
-        ElementalsAPI.regAilment(burn);
+        regBleed();
+        //ignites inflict burns, but so does Righteous Fire, which deals damage scaling from fire, life and dot.
+        Ailment ignite = new Ailment("ignite", 4, true, true, 1, false);
+        ignite.setRatioOfDPStoHitDamage(0.9f);
+        ignite.setOnTick((target, ailmentInstance) -> {
+            float totalDPS = ailmentInstance.getDpsMultiplier() * ailmentInstance.getFinalDPSPerStack();
+            float damagePerTick = Math.round(totalDPS / 20);
+            Helper.hurtDoT(target, damagePerTick);
+        });
+        ElementalsAPI.regAilment(ignite);
+        ElementalsAPI.pairAilmentToElement("ignite", "fire");
 
-        Ailment scorch = new Ailment("scorch", false, true, 1, false);
+        //todo
+        //ElementalsAPI.pairAilmentToElement("burn", "fire");
+
+        Ailment scorch = new Ailment("scorch", 4, false, true, 1, false);
         ElementalsAPI.regAilment(scorch);
 
         //alt registration
@@ -63,19 +75,43 @@ public class Init {
         ElementalsAPI.regAilment("poison");
         ElementalsAPI.regAilment("ghostflame");
 
+        var ghostFlame = ElementalsAPI.getAilment("ghostflame");
+        ghostFlame.setDurationInSeconds(5);
+        ghostFlame.setOnExpire((target, ailmentInstance) -> Helper.hurtDoT(target, 500));
+        ElementalsAPI.pairAilmentToElement("ghostflame", "abyssal");
+
         ElementalsAPI.setElementsForElementCategory(Set.of("fire", "ice", "lightning"), "elemental");
-        ElementalsAPI.setAilmentsForElement(Set.of("burn"), "fire");
+        ElementalsAPI.setAilmentsForElement(Set.of("ignite"), "fire");
+    }
+
+    private static void regBleed() {
+        Ailment bleed = new Ailment("bleed", 4, true, false, 1, false);
+        //bleed.setRatioOfDPStoHitDamage(0.7f);
+        bleed.setOnTick((target, ailmentInstance) -> {
+            double targetVelocity = target.getDeltaMovement().horizontalDistance();
+            //if not moving, multiplier for bleed is 0.7x of the hit damage from the ailment instance.
+            //if moving, it increases to 2.1x.
+            float movementMultiplier = (float) (targetVelocity > 0.0625 && (target.xOld != target.getX() || target.zOld != target.getZ()) ? 2.1 : 0.7);
+
+            float totalDPS = ailmentInstance.getFinalDPSPerStack() * movementMultiplier;
+            float damagePerTick = Math.round(totalDPS / 20);
+            Helper.hurtDoT(target, damagePerTick);
+        });
+        ElementalsAPI.regAilment(bleed);
+        ElementalsAPI.pairAilmentToElement("bleed", "physical");
     }
 
     private static void initTags() {
 
-        var elements = ElementalsAPI.getAllElementNames();
-        var validWeapons = AdvancedARPGAttributesAPI.getValidWeapons();
-        var validDamageSources = DamagePipelineAPI.getValidDamageSourceTypeTags();
+        var elementIds = ElementalsAPI.getAllElementNames();
+        var ailmentIds = ElementalsAPI.getAllAilmentNames();
+        var validWeaponIds = AdvancedARPGAttributesAPI.getValidWeapons();
+        var validDamageSourceIds = DamagePipelineAPI.getValidDamageSourceTypeTags();
 
-        AdvancedARPGAttributesAPI.getValidTags().addAll(validWeapons);
-        AdvancedARPGAttributesAPI.getValidTags().addAll(elements);
-        AdvancedARPGAttributesAPI.getValidTags().addAll(validDamageSources);
+        AdvancedARPGAttributesAPI.getValidTags().addAll(elementIds);
+        AdvancedARPGAttributesAPI.getValidTags().addAll(ailmentIds);
+        AdvancedARPGAttributesAPI.getValidTags().addAll(validWeaponIds);
+        AdvancedARPGAttributesAPI.getValidTags().addAll(validDamageSourceIds);
 
         AdvancedARPGAttributesAPI.registerTag("attack");
         AdvancedARPGAttributesAPI.registerTag("spell");
@@ -91,6 +127,7 @@ public class Init {
         AdvancedARPGAttributesAPI.registerTag("crit");
         AdvancedARPGAttributesAPI.registerTag("chance");
         AdvancedARPGAttributesAPI.registerTag("dot"); //damage over time
+        AdvancedARPGAttributesAPI.registerTag("ailment");
         AdvancedARPGAttributesAPI.registerTag("dealt");
         AdvancedARPGAttributesAPI.registerTag("taken");
         AdvancedARPGAttributesAPI.registerTag("suppression");
@@ -221,6 +258,10 @@ public class Init {
         AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:spell_suppression", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(ADDED), Set.of("spell", "suppression", "taken"));
         AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:spell_dodge_chance", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of(ADDED), Set.of("spell", "dodge", "chance"));
 
+        for(var ailmentId : ElementalsAPI.getAllAilmentNames()) {
+            AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:chance_to_inflict_%s", AnIonianOnionsDamageMegacompatMod.MOD_ID, ailmentId)), Set.of(ailmentId, "ailment", "chance"));
+        }
+
 
         //removing duplicate modifier for physical melee damage (the other is minecraft:generic.attack_damage which functions identically).
         AdvancedARPGAttributesAPI.getRegistry().remove(ResourceLocation.tryParse(String.format("%s:physical_melee_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID)));
@@ -238,11 +279,12 @@ public class Init {
         //DamagePipelineAPI.addPreHitDamageStep(new SpellDodgeStep());
         //DamagePipelineAPI.addDamageStep(new AttackerInitialDamageStep());
         DamagePipelineAPI.addDamageStep(new AttackerBaseDamageStep());
-        //DamagePipelineAPI.addDamageStep(new ApplyAilmentsStep());
+        DamagePipelineAPI.addDamageStep(new CritStep());
+        DamagePipelineAPI.addDamageStep(new ApplyAilmentsStep());
         DamagePipelineAPI.addDamageStep(new AttackerIncreasedDamageStep());
         DamagePipelineAPI.addDamageStep(new AttackerMoreDamageStep());
         DamagePipelineAPI.addDamageStep(new ArrowSpeedStep());
-        //DamagePipelineAPI.addDamageStep(new CritStep());
+
         //DamagePipelineAPI.addDamageStep(new ArmorStep());
         //DamagePipelineAPI.addDamageStep(new ElementalResistanceStep());;
         //DamagePipelineAPI.addDamageStep(new SpellSuppressionStep());
@@ -278,6 +320,7 @@ public class Init {
     public static void init() {
 
         initElements();
+        initAilments();
         initClassesOfWeaponsAndTags();
         initValidDamageSourceTypesTags();
         initTags();

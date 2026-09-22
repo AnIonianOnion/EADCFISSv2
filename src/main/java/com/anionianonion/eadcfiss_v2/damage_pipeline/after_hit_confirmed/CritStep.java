@@ -30,7 +30,13 @@ public class CritStep implements IDamageStep {
         float critRoll = (float) Math.random();
         float finalDamage = initialDamage;
 
-        if(attackerCritChance >= critRoll) finalDamage *= Math.max(1, attackerCritDamage - defenderAntiCritDamageTaken);
+        if(attackerCritChance >= critRoll) {
+            damageContext.setCrit(true);
+            finalDamage *= Math.max(1, attackerCritDamage - defenderAntiCritDamageTaken);
+        }
+        else {
+            damageContext.setCrit(false);
+        }
 
         return finalDamage;
     }
