@@ -8,6 +8,8 @@ import com.anionianonion.damage_pipeline_api.capability.DamageContextCapability;
 import com.anionianonion.damage_pipeline_api.util.RandomHelpers;
 import com.anionianonion.elementals_api.AilmentDamageSource;
 import com.anionianonion.elementals_api.capability.AilmentDataContainerCapability;
+import com.anionianonion.elementals_api.capability.AilmentModifiersContainerCapability;
+import com.anionianonion.elementals_api.containers.AilmentModifiersContainer;
 import io.redspace.ironsspellbooks.damage.SpellDamageSource;
 import io.redspace.ironsspellbooks.entity.spells.AoeEntity;
 import net.minecraft.network.chat.Component;
@@ -57,11 +59,9 @@ public class EventHandler {
         var directEntity = damageSource.getDirectEntity();
         var entity = damageSource.getEntity();
 
-        info("entity " + entity + " attacked");
-        info("direct entity " + directEntity + " attacked");
-
+        if (damageSource instanceof AilmentDamageSource) return;
         //makes sure the thing that triggered the hit is a LivingEntity
-        if(!(entity instanceof LivingEntity livingAttackerOrCaster) || damageSource instanceof AilmentDamageSource) return;
+        if(!(entity instanceof LivingEntity livingAttackerOrCaster)) return;
 
         var hand = livingAttackerOrCaster.getUsedItemHand();
         var itemInHand = livingAttackerOrCaster.getItemInHand(hand).getItem();
@@ -168,6 +168,9 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void onDamage(LivingDamageEvent e) {
+
+        if(e.getSource() instanceof AilmentDamageSource) return;
+
         float totalDamage = DamagePipeline.dealDamage(e);
         e.setAmount(totalDamage);
 
@@ -194,6 +197,9 @@ public class EventHandler {
 
         if(ailmentDataContainer == null) return;
         ailmentDataContainer.tick();
+
+        var ailmentModContainer = livingEntity.getCapability(AilmentModifiersContainerCapability.INSTANCE).resolve().orElse(AilmentModifiersContainer.getDefault());
+        ailmentModContainer.getAilmentReplacements().put("ignite", "scorch");
     }
 
     //livingEntity uuid to attribute modifier mapper.

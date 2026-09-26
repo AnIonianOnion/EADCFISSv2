@@ -17,7 +17,8 @@ public class CritStep implements IDamageStep {
                        LivingEntity livingAttacker, LivingEntity livingDefender,
                        DamageContext damageContext) {
         //though the damage that causes damage over time can crit, damage from damage over time instances themselves cannot
-        if(damageContext.getTags().contains("dot")) return initialDamage;
+        //currently does nothing, because we are skipping pipeline for AIlmentDamageSources
+        if(damageContext.getTags().contains("ailment")) return initialDamage;
 
         Set<ResourceLocation> attackerCritChanceAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "crit", "chance");
         Set<ResourceLocation> attackerCritDamageAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "crit", "damage", "dealt");

@@ -4,6 +4,7 @@ import com.anionianonion.advanced_arpg_attributes_api.StatContainer;
 import com.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributesAPI;
 import com.anionianonion.damage_pipeline_api.DamageContext;
 import com.anionianonion.damage_pipeline_api.api.IDamageStep;
+import com.anionianonion.eadcfiss_v2.util.Helper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,6 +24,7 @@ public class ElementalResistanceStep implements IDamageStep {
 
         Set<ResourceLocation> resistanceAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", element, "resistance");
         float elementalResistance = AdvancedARPGAttributesAPI.getResult(livingDefender, resistanceAttributes);
+        Helper.info(element + " elementalRes: " + elementalResistance);
 
         Set<ResourceLocation> penetrationAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", element, "penetration");
         float elementalPenetration = AdvancedARPGAttributesAPI.getResult(livingAttacker, penetrationAttributes);

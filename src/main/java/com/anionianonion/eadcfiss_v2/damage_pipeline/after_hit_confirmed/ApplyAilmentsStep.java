@@ -23,24 +23,24 @@ public class ApplyAilmentsStep implements IDamageStep {
                        DamageContext damageContext) {
 
         var ailmentModifiersContainer = livingAttacker.getCapability(AilmentModifiersContainerCapability.INSTANCE).orElse(AilmentModifiersContainer.getDefault());
-        AilmentModifiersContainer.logContainer(ailmentModifiersContainer);
+        //AilmentModifiersContainer.logContainer(ailmentModifiersContainer);
 
         var ailmentIds = ailmentModifiersContainer.getAilmentsToInflictForWhichElement().get(damageContext.getElement());
 
         for(var ailmentId : ailmentIds) {
-            //was using wrong applier method, the one that didn't use the right AilmentInstance constructor.
             var finalAilmentId = ailmentId;
             if(ailmentModifiersContainer.getAilmentReplacements().containsKey(ailmentId)) finalAilmentId = ailmentModifiersContainer.getAilmentReplacements().get(ailmentId);
 
-            Ailment ailment = ElementalsAPI.getAilment(finalAilmentId);
-            if(ailment.canBeInflictedFromCrit() && damageContext.isCrit()) AilmentApplier.applyAilment(ailmentId, livingDefender, (int) initialDamage);
+            Ailment replacedAilment = ElementalsAPI.getAilment(ailmentId);
+            if(replacedAilment.isGuaranteedInflictChance()) AilmentApplier.applyAilment(finalAilmentId, livingAttacker, livingDefender, (int) initialDamage);
+            else if(replacedAilment.canBeInflictedFromCrit() && damageContext.isCrit()) AilmentApplier.applyAilment(finalAilmentId, livingAttacker, livingDefender, (int) initialDamage);
             else {
                 var ailmentRoll = Math.random();
 
                 Set<ResourceLocation> relatedAilmentAttributesRLs = AdvancedARPGAttributesAPI.getFilteredAttributes("self", ailmentId, "ailment", "chance");
                 var ailmentChance = AdvancedARPGAttributesAPI.getResult(livingAttacker, relatedAilmentAttributesRLs);
 
-                if(ailmentChance >= ailmentRoll) AilmentApplier.applyAilment(ailmentId, livingDefender, (int) initialDamage);
+                if(ailmentChance >= ailmentRoll) AilmentApplier.applyAilment(finalAilmentId, livingAttacker, livingDefender, (int) initialDamage);
             }
         }
         return initialDamage;
