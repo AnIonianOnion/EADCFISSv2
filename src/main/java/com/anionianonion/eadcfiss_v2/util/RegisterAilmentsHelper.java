@@ -1,6 +1,8 @@
 package com.anionianonion.eadcfiss_v2.util;
 
+import com.anionianonion.advanced_arpg_attributes_api.StatContainer;
 import com.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributesAPI;
+import com.anionianonion.advanced_arpg_attributes_api.capability.StatContainerCapability;
 import com.anionianonion.elementals_api.api.ElementalsAPI;
 import com.anionianonion.elementals_api.data_classes.Ailment;
 import com.anionianonion.elementals_api.util.RandomHelpers;
@@ -40,36 +42,33 @@ public class RegisterAilmentsHelper {
         scorch.setDefenderOnApply(ailmentInstance -> {
             var defender = ailmentInstance.defender;
 
+            var statContainer = defender.getCapability(StatContainerCapability.INSTANCE).resolve().orElse(null);
+            if(statContainer == null) return;
+
             for(var elementId : ElementalsAPI.getAllElementNames()) {
                 Set<ResourceLocation> attributeRLs = AdvancedARPGAttributesAPI.getFilteredAttributes("self", elementId, "resistance");
                 for(var rl : attributeRLs) {
                     var attribute = ForgeRegistries.ATTRIBUTES.getValue(rl);
-                    if(attribute == null) {
-                        Helper.info("attribute " + rl + " is null");
-                        continue;
-                    }
-                    else {
-                        Helper.info("adding scorch to " + rl.toString());
-                    }
-                    if(defender.getAttribute(attribute) == null) {
-                        Helper.info("defender.getAttribute(" + rl + ") is null");
-                        continue;
-                    }
-                    else {
-                        Helper.info("added scorch to found instance ");
-                    }
-                    Objects.requireNonNull(defender.getAttribute(attribute)).addPermanentModifier(
-                            new AttributeModifier(
-                                    UUID.fromString("920a8a9d-e1ea-4a7d-b3de-1d8f150b47a3"),
-                                    "scorch",
-                                    -ailmentInstance.getEffectStrength(),
-                                    AttributeModifier.Operation.ADDITION)
-                    );
-                    Helper.info("" + defender.getAttribute(attribute).getValue());
+                    if(attribute == null) continue;
+                    if(defender.getAttribute(attribute) == null) continue;
 
-                    Objects.requireNonNull(defender.getAttribute(attribute)).getModifiers().forEach(attributeModifier -> Helper.info(rl + " " + attributeModifier.toString()));
+                    //https://forums.minecraftforge.net/topic/120285-attribute-modifier-uuids-clarification/
+                    var modifier = new AttributeModifier(
+                            UUID.fromString("920a8a9d-e1ea-4a7d-b3de-1d8f150b47a3"),
+                            "scorch",
+                            -ailmentInstance.getEffectStrength(),
+                            AttributeModifier.Operation.ADDITION);
+
+                    Objects.requireNonNull(defender.getAttribute(attribute)).addTransientModifier(
+                           modifier
+                    );
+
+                    statContainer.addModifier(modifier, rl.toString());
+                    Helper.info("rl to String: " + rl);
                 }
             }
+
+            AdvancedARPGAttributesAPI.logDataFromStatContainer(statContainer);
         });
         scorch.setDefenderOnExpire(ailmentInstance -> {
             var defender = ailmentInstance.defender;
