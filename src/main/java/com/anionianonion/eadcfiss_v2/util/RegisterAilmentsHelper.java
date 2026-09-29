@@ -1,5 +1,6 @@
 package com.anionianonion.eadcfiss_v2.util;
 
+import com.anionianonion.advanced_arpg_attributes_api.AdvancedARPGAttribute;
 import com.anionianonion.advanced_arpg_attributes_api.StatContainer;
 import com.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributesAPI;
 import com.anionianonion.advanced_arpg_attributes_api.capability.StatContainerCapability;
@@ -33,7 +34,7 @@ public class RegisterAilmentsHelper {
             var damage = ailmentInstance.sourceDamage;
             var threshold = defender.getMaxHealth();
 
-            var nonDamagingAilmentEffectStrengthAttributeRLs = AdvancedARPGAttributesAPI.getFilteredAttributes("nondamaging", "ailment", "effect_strength");
+            var nonDamagingAilmentEffectStrengthAttributeRLs = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("nondamaging", "ailment", "effect_strength");
             var data = AdvancedARPGAttributesAPI.getData(attacker, nonDamagingAilmentEffectStrengthAttributeRLs);
 
             return //(float) (0.5f * Math.pow((damage / threshold), 0.4) * (1f + data[1]) * (1f + data[2]));
@@ -46,20 +47,22 @@ public class RegisterAilmentsHelper {
             if(statContainer == null) return;
 
             for(var elementId : ElementalsAPI.getAllElementNames()) {
-                Set<ResourceLocation> attributeRLs = AdvancedARPGAttributesAPI.getFilteredAttributes("self", elementId, "resistance");
+                Set<ResourceLocation> attributeRLs = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", elementId, "resistance");
                 for(var rl : attributeRLs) {
                     var attribute = ForgeRegistries.ATTRIBUTES.getValue(rl);
                     if(attribute == null) continue;
                     if(defender.getAttribute(attribute) == null) continue;
 
+                    AdvancedARPGAttribute aaattribute = AdvancedARPGAttributesAPI.getRegistry().get(rl);
+
                     //https://forums.minecraftforge.net/topic/120285-attribute-modifier-uuids-clarification/
                     var modifier = new AttributeModifier(
-                            UUID.fromString("920a8a9d-e1ea-4a7d-b3de-1d8f150b47a3"),
+                            aaattribute.getUuidForAddModifier(),
                             "scorch",
                             -ailmentInstance.getEffectStrength(),
                             AttributeModifier.Operation.ADDITION);
 
-                    Objects.requireNonNull(defender.getAttribute(attribute)).addTransientModifier(
+                    Objects.requireNonNull(defender.getAttribute(attribute)).addPermanentModifier(
                            modifier
                     );
 
@@ -74,13 +77,16 @@ public class RegisterAilmentsHelper {
             var defender = ailmentInstance.defender;
 
             for(var elementId : ElementalsAPI.getAllElementNames()) {
-                Set<ResourceLocation> attributeRLs = AdvancedARPGAttributesAPI.getFilteredAttributes("self", elementId, "resistance");
+                Set<ResourceLocation> attributeRLs = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", elementId, "resistance");
                 for(var rl : attributeRLs) {
                     var attribute = ForgeRegistries.ATTRIBUTES.getValue(rl);
                     if(attribute == null) continue;
                     if(defender.getAttribute(attribute) == null) continue;
+
+                    AdvancedARPGAttribute aaattribute = AdvancedARPGAttributesAPI.getRegistry().get(rl);
+
                     Objects.requireNonNull(defender.getAttribute(attribute)).removeModifier(
-                            UUID.fromString("920a8a9d-e1ea-4a7d-b3de-1d8f150b47a3")
+                            aaattribute.getUuidForAddModifier()
                     );
                     Helper.info(rl + " modifer removed");
                 }

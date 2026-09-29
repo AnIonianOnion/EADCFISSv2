@@ -14,7 +14,7 @@ public class AttackerBaseDamageStep implements IDamageStep {
                        LivingEntity livingAttacker, LivingEntity livingDefender,
                        DamageContext damageContext) {
 
-        var filteredAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes(damageContext.getTags());
+        var filteredAttributes = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations(damageContext.getTags());
         return AdvancedARPGAttributesAPI.getData(livingAttacker, filteredAttributes)[0];
     }
 }

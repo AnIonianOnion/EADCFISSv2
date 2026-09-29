@@ -16,7 +16,7 @@ public class AttackerIncreasedDamageStep implements IDamageStep {
                        LivingEntity livingAttacker, LivingEntity livingDefender,
                        DamageContext damageContext) {
 
-        var filteredAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes(damageContext.getTags());
+        var filteredAttributes = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations(damageContext.getTags());
         return initialDamage * (1 + AdvancedARPGAttributesAPI.getData(livingAttacker, filteredAttributes)[1]);
     }
 }

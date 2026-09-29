@@ -15,9 +15,7 @@ import net.minecraft.world.item.*;
 import static com.anionianonion.advanced_arpg_attributes_api.AdvancedARPGAttribute.ModifierType.*;
 import static com.anionianonion.eadcfiss_v2.util.RegisterAilmentsHelper.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Init {
 
@@ -78,7 +76,7 @@ public class Init {
 
         var elementIds = ElementalsAPI.getAllElementNames();
         var ailmentIds = ElementalsAPI.getAllAilmentNames();
-        var validWeaponIds = AdvancedARPGAttributesAPI.getValidWeapons();
+        var validWeaponIds = AdvancedARPGAttributesAPI.getValidWeaponTags();
         var validDamageSourceIds = DamagePipelineAPI.getValidDamageSourceTypeTags();
 
         AdvancedARPGAttributesAPI.getValidTags().addAll(elementIds);
@@ -176,7 +174,7 @@ public class Init {
     private static void initBasicAttributes() {
 
         var elements = ElementalsAPI.getAllElementNames();
-        var weapons = AdvancedARPGAttributesAPI.getValidWeapons();
+        var weapons = AdvancedARPGAttributesAPI.getValidWeaponTags();
 
         var physicalMeleeAttackDamage = new AdvancedARPGAttribute(ResourceLocation.tryParse("minecraft:generic.attack_damage"), Set.of("physical", "melee", "attack", "damage"));
         physicalMeleeAttackDamage.setInheritBase(true);
@@ -253,6 +251,49 @@ public class Init {
 
         //setting base arrow damage, which is otherwise 0.
         AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:physical_projectile_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID))).setBaseValue(2f);
+
+        AdvancedARPGAttribute selfFireResAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:fire_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID)));
+        selfFireResAttribute.setUuidForAddModifier(UUID.fromString("920a8a9d-e1ea-4a7d-b3de-1d8f150b47a3"));
+
+        AdvancedARPGAttribute selfIceResAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:ice_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID)));;
+        selfIceResAttribute.setUuidForAddModifier(UUID.fromString("a95819ec-9de9-4252-bacb-6f2a152c96a7"));
+
+        AdvancedARPGAttribute selfLightningResAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:lightning_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID)));;
+        selfLightningResAttribute.setUuidForAddModifier(UUID.fromString("fb4e55c8-fb12-4831-97c7-97e056e741ca"));
+
+        AdvancedARPGAttribute selfHolyResAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:holy_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID)));;
+        selfHolyResAttribute.setUuidForAddModifier(UUID.fromString("5b7e0b8c-0c5c-482f-a89b-c07e3ac724b0"));
+
+        AdvancedARPGAttribute selfEnderResAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:ender_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID)));;
+        selfEnderResAttribute.setUuidForAddModifier(UUID.fromString("54b8780a-ebc0-4727-ab1e-2e130be723fa"));
+
+        AdvancedARPGAttribute selfBloodResAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:blood_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID)));;
+        selfBloodResAttribute.setUuidForAddModifier(UUID.fromString("bcedd94e-0b6e-484e-8d70-fdf77806c963"));
+
+        AdvancedARPGAttribute selfNatureResAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:nature_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID)));;
+        selfNatureResAttribute.setUuidForAddModifier(UUID.fromString("4a6d5eb3-9e96-4c6d-9142-f83a2a864b94"));
+
+        AdvancedARPGAttribute selfEvocationResAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:evocation_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID)));;
+        selfEvocationResAttribute.setUuidForAddModifier(UUID.fromString("8e2ca31e-c062-4ee7-9bdf-34ad7b5bfb2f"));
+
+        AdvancedARPGAttribute selfEldritchResAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:eldritch_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID)));;
+        selfEldritchResAttribute.setUuidForAddModifier(UUID.fromString("08ed0d27-92ee-47d7-907e-8cbd13cb8a92"));
+
+        AdvancedARPGAttribute selfSoundResAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:sound_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID)));;
+        selfSoundResAttribute.setUuidForAddModifier(UUID.fromString("201ef756-856f-4f80-ab84-85126296a4c5"));
+
+        AdvancedARPGAttribute selfGeoResAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:geo_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID)));;
+        selfGeoResAttribute.setUuidForAddModifier(UUID.fromString("ceef58d5-084b-473d-bde2-a4f83a19d09d"));
+
+        AdvancedARPGAttribute selfAquaResAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:aqua_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID)));;
+        selfAquaResAttribute.setUuidForAddModifier(UUID.fromString("52624651-e9d9-4409-a56c-66be3298bc3c"));
+
+        AdvancedARPGAttribute selfTechnomancyResAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:technomancy_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID)));;
+        selfTechnomancyResAttribute.setUuidForAddModifier(UUID.fromString("73b1e1bb-4ff8-40ba-bcb8-cfd28ce0b0de"));
+
+        AdvancedARPGAttribute selfAbyssalResAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.tryParse(String.format("%s:abyssal_resistance", AnIonianOnionsDamageMegacompatMod.MOD_ID)));;
+        selfAbyssalResAttribute.setUuidForAddModifier(UUID.fromString("edfe7577-2f27-4bd7-b17a-fe2f76a9c058"));
+
     }
 
     private static void validateAttributes() {

@@ -37,7 +37,7 @@ public class ApplyAilmentsStep implements IDamageStep {
             else {
                 var ailmentRoll = Math.random();
 
-                Set<ResourceLocation> relatedAilmentAttributesRLs = AdvancedARPGAttributesAPI.getFilteredAttributes("self", ailmentId, "ailment", "chance");
+                Set<ResourceLocation> relatedAilmentAttributesRLs = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", ailmentId, "ailment", "chance");
                 var ailmentChance = AdvancedARPGAttributesAPI.getResult(livingAttacker, relatedAilmentAttributesRLs);
 
                 if(ailmentChance >= ailmentRoll) AilmentApplier.applyAilment(finalAilmentId, livingAttacker, livingDefender, (int) initialDamage);

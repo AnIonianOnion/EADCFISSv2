@@ -20,7 +20,7 @@ public class ArmorStep implements IDamageStep {
                        DamageContext damageContext) {
         if (!damageContext.getElement().equals("physical")) return initialDamage;
 
-        Set<ResourceLocation> armorAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes( "self", "defense", "armor");
+        Set<ResourceLocation> armorAttributes = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations( "self", "defense", "armor");
 
         float armor = AdvancedARPGAttributesAPI.getResult(livingDefender, armorAttributes);
 

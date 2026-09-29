@@ -22,8 +22,8 @@ public class SpellSuppressionStep implements IDamageStep {
 
         if(!damageContext.getTags().contains("spell")) return initialDamage;
 
-        Set<ResourceLocation> spellSuppressionChanceAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "spell", "suppression", "chance");
-        Set<ResourceLocation> spellSuppressionAmountAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "spell", "suppression", "taken");
+        Set<ResourceLocation> spellSuppressionChanceAttribute = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", "spell", "suppression", "chance");
+        Set<ResourceLocation> spellSuppressionAmountAttribute = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", "spell", "suppression", "taken");
 
         float spellSuppressionChance = AdvancedARPGAttributesAPI.getResult(livingDefender, spellSuppressionChanceAttribute);
         float spellSuppressionAmount = AdvancedARPGAttributesAPI.getResult(livingDefender, spellSuppressionAmountAttribute);

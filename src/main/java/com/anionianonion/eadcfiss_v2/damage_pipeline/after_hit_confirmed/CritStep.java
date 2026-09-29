@@ -20,12 +20,12 @@ public class CritStep implements IDamageStep {
         //currently does nothing, because we are skipping pipeline for AIlmentDamageSources
         if(damageContext.getTags().contains("ailment")) return initialDamage;
 
-        Set<ResourceLocation> attackerCritChanceAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "crit", "chance");
-        Set<ResourceLocation> attackerCritDamageAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "crit", "damage", "dealt");
+        Set<ResourceLocation> attackerCritChanceAttributes = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", "crit", "chance");
+        Set<ResourceLocation> attackerCritDamageAttributes = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", "crit", "damage", "dealt");
         float attackerCritChance = AdvancedARPGAttributesAPI.getResult(livingAttacker, attackerCritChanceAttributes);
         float attackerCritDamage = AdvancedARPGAttributesAPI.getResult(livingAttacker, attackerCritDamageAttributes);
 
-        Set<ResourceLocation> defenderAntiCritDamageAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "crit", "damage", "taken");
+        Set<ResourceLocation> defenderAntiCritDamageAttribute = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", "crit", "damage", "taken");
         float defenderAntiCritDamageTaken = AdvancedARPGAttributesAPI.getResult(livingDefender, defenderAntiCritDamageAttribute);
 
         float critRoll = (float) Math.random();

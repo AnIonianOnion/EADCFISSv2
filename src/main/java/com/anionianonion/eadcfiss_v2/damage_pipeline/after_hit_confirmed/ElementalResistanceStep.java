@@ -22,14 +22,14 @@ public class ElementalResistanceStep implements IDamageStep {
         var element = damageContext.getElement();
         if(element.equals("physical")) return initialDamage;
 
-        Set<ResourceLocation> resistanceAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", element, "resistance");
+        Set<ResourceLocation> resistanceAttributes = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", element, "resistance");
         float elementalResistance = AdvancedARPGAttributesAPI.getResult(livingDefender, resistanceAttributes);
         Helper.info(element + " elementalRes: " + elementalResistance);
 
-        Set<ResourceLocation> penetrationAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", element, "penetration");
+        Set<ResourceLocation> penetrationAttributes = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", element, "penetration");
         float elementalPenetration = AdvancedARPGAttributesAPI.getResult(livingAttacker, penetrationAttributes);
 
-        Set<ResourceLocation> exposureAttributes = AdvancedARPGAttributesAPI.getFilteredAttributes("self", element, "exposure");
+        Set<ResourceLocation> exposureAttributes = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", element, "exposure");
         float elementalExposure = AdvancedARPGAttributesAPI.getResult(livingDefender, exposureAttributes);
 
         float finalResistance = elementalResistance - elementalPenetration - elementalExposure;

@@ -19,7 +19,7 @@ public class SpellDodgeStep implements IPreHitDamageStep {
 
         if(!(damageContext.getTags().contains("spell"))) return true;
 
-        Set<ResourceLocation> spellDodgeChanceAttribute = AdvancedARPGAttributesAPI.getFilteredAttributes("self", "spell", "dodge", "chance");
+        Set<ResourceLocation> spellDodgeChanceAttribute = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", "spell", "dodge", "chance");
         float spellDodgeChance = AdvancedARPGAttributesAPI.getResult(livingDefender, spellDodgeChanceAttribute);
 
         float dodgeRoll = (float) Math.random();
