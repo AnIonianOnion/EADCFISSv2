@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "io.anionianonion.megacompat.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ArmorDoesntAffectElementalDamageMixin",
+    "DisableDoubleDipResistsMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

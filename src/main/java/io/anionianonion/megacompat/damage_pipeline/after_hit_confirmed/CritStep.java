@@ -1,0 +1,49 @@
+package io.anionianonion.megacompat.damage_pipeline.after_hit_confirmed;
+
+import io.anionianonion.advanced_arpg_attributes_api.StatContainer;
+import io.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributesAPI;
+import io.anionianonion.damage_pipeline_api.DamageContext;
+import io.anionianonion.damage_pipeline_api.api.IDamageStep;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+
+import java.util.Set;
+
+public class CritStep implements IDamageStep {
+
+    @Override
+    public float apply(float initialDamage,
+                       StatContainer attackerStatContainer, StatContainer defenderStatContainer,
+                       LivingEntity livingAttacker, LivingEntity livingDefender,
+                       DamageContext damageContext) {
+        //though the damage that causes damage over time can crit, damage from damage over time instances themselves cannot
+        //currently does nothing, because we are skipping pipeline for AIlmentDamageSources
+        if(damageContext.getTags().contains("ailment")) return initialDamage;
+
+        Set<ResourceLocation> attackerCritChanceAttributes = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", "crit", "chance");
+        Set<ResourceLocation> attackerCritDamageAttributes = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", "crit", "damage", "dealt");
+        float attackerCritChance = AdvancedARPGAttributesAPI.getResult(livingAttacker, attackerCritChanceAttributes);
+        float attackerCritDamage = AdvancedARPGAttributesAPI.getResult(livingAttacker, attackerCritDamageAttributes);
+
+        Set<ResourceLocation> defenderAntiCritDamageAttribute = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", "crit", "damage", "taken");
+        float defenderAntiCritDamageTaken = AdvancedARPGAttributesAPI.getResult(livingDefender, defenderAntiCritDamageAttribute);
+
+        float critRoll = (float) Math.random();
+        float finalDamage = initialDamage;
+
+        if(attackerCritChance >= critRoll) {
+            damageContext.setCrit(true);
+            finalDamage *= Math.max(1, attackerCritDamage - defenderAntiCritDamageTaken);
+        }
+        else {
+            damageContext.setCrit(false);
+        }
+
+        return finalDamage;
+    }
+
+    @Override
+    public String toString() {
+        return "CritStep";
+    }
+}
