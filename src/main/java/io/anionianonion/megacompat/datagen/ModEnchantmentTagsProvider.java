@@ -2,13 +2,12 @@ package io.anionianonion.megacompat.datagen;
 
 import io.anionianonion.elementals_api.api.ElementalsAPI;
 import io.anionianonion.megacompat.AnIonianOnionsDamageMegacompatMod;
+import io.anionianonion.megacompat.util.Helper;
+import io.anionianonion.megacompat.util.RLPatterns;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.EnchantmentTagsProvider;
-import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -32,7 +31,7 @@ public class ModEnchantmentTagsProvider
         List<ResourceKey<Enchantment>> increasedElementDamageEnchantmentRKs = new ArrayList<>();
 
         for(var elementName : ElementalsAPI.getAllElementNames()) {
-            var resourceKey = ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.fromNamespaceAndPath(AnIonianOnionsDamageMegacompatMod.MOD_ID, String.format("increased_element_dmg/%s", elementName)));
+            var resourceKey = Helper.makeEnchantmentRK(RLPatterns.Enchantments.INCREASED_ELEMENT_DAMAGE, elementName);
             increasedElementDamageEnchantmentRKs.add(resourceKey);
         }
 

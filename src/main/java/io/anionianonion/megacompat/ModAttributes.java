@@ -10,10 +10,11 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModAttributes {
 
-    static final DeferredRegister<Attribute> ATTRIBUTES_REGISTRY = DeferredRegister.create(BuiltInRegistries.ATTRIBUTE, AnIonianOnionsDamageMegacompatMod.MOD_ID);
+    public static final DeferredRegister<Attribute> ATTRIBUTES_REGISTRY = DeferredRegister.create(BuiltInRegistries.ATTRIBUTE, AnIonianOnionsDamageMegacompatMod.MOD_ID);
 
     public static void register(IEventBus eventBus) {
 
+        AnIonianOnionsDamageMegacompatMod.LOGGER.info("Hello, runData from ModAttributes.register!");
         for(var aaaAtribute : AdvancedARPGAttributesAPI.getRegistry().keySet()) {
             var namespace = aaaAtribute.getNamespace();
             if(!namespace.equals(AnIonianOnionsDamageMegacompatMod.MOD_ID)) continue;

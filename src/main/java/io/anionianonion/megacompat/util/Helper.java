@@ -1,7 +1,11 @@
 package io.anionianonion.megacompat.util;
 
 import io.anionianonion.megacompat.AnIonianOnionsDamageMegacompatMod;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.item.enchantment.Enchantment;
 
 public class Helper {
 
@@ -24,6 +28,13 @@ public class Helper {
 
     public static ResourceLocation makeRL(String replaced, String... replacements) {
         return ofThisMod(format(replaced, replacements));
+    }
 
+    public static ResourceKey<Enchantment> makeEnchantmentRK(String replaced, String... replacements) {
+        return ResourceKey.create(Registries.ENCHANTMENT, Helper.makeRL(replaced, replacements));
+    }
+
+    public static ResourceKey<Attribute> makeAttributeRK(String replaced, String... replacements) {
+        return ResourceKey.create(Registries.ATTRIBUTE, Helper.makeRL(replaced, replacements));
     }
 }

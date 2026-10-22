@@ -20,6 +20,7 @@ public class AnIonianOnionsDamageMegacompatMod {
 
     public AnIonianOnionsDamageMegacompatMod(IEventBus modEventBus, ModContainer modContainer) {
 
+        LOGGER.info("Hello from runData!");
         Init.init();
 
         ModAttributes.register(modEventBus);
