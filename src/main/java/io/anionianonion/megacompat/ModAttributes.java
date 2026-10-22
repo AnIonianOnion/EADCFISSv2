@@ -2,6 +2,7 @@ package io.anionianonion.megacompat;
 
 import io.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributesAPI;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.neoforged.bus.api.IEventBus;
