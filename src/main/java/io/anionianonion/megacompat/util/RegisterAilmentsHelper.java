@@ -36,7 +36,6 @@ public class RegisterAilmentsHelper {
             var defender = ailmentInstance.defender;
 
             var statContainer = defender.getData(ModAttachments.STAT_CONTAINER.get());
-            if(statContainer == null) return;
 
             for(var elementId : ElementalsAPI.getAllElementNames()) {
                 Set<ResourceLocation> attributeRLs = AdvancedARPGAttributesAPI.getFilteredAttributesResourceLocations("self", elementId, "resistance");
