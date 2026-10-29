@@ -44,10 +44,18 @@ public class DataGenerators {
 
         //I had true originally, which works, but I'm going to follow his episode 30 github.
         //https://github.com/Tutorials-By-Kaupenjoe/NeoForge-Tutorial-1.21.X/blob/30-enchantment/src/main/java/net/kaupenjoe/tutorialmod/datagen/DataGenerators.java
-        dataGenerator.addProvider(event.includeServer(), new ModDatapackEntries(packOutput, lookupProvider));
+
+        //I later noticed that Kaupenjoe explicitly defined a blocksTagProvider variable, to be used by the contentGetter for itemTags, which is similar to what I need,
+        //so I tried accessing what I could from modDatapackEntries, which only leaves the registryProvider, so I tried reusing the lookup provider from modDatapackEntries, and it worked.
+
+        //maybe because I am using data-genned enchantments is why I need to explicitly reset it, and the enchantment tags depend on it, is why I need to explicitly use the same lookup provider.
+        var modDatapackEntries = new ModDatapackEntries(packOutput, lookupProvider);
+        dataGenerator.addProvider(event.includeServer(), modDatapackEntries);
+
         //https://moddingwithryan.com/tutorials/ml-1-21-datagen-lang/
         dataGenerator.addProvider(event.includeClient(), new ModLangProvider(packOutput));
 
-        dataGenerator.addProvider(event.includeServer(), new ModEnchantmentTagsProvider(packOutput, lookupProvider, existingFileHelper));
+        //changed lookupProvider to modDatapackEntries.getRegistryProvider()
+        dataGenerator.addProvider(event.includeServer(), new ModEnchantmentTagsProvider(packOutput, modDatapackEntries.getRegistryProvider(), existingFileHelper));
     }
 }

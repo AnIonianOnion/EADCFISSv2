@@ -8,11 +8,11 @@
   "max_level": 2,
   "min_cost": {
     "base": 1,
-    "per_level_above_first": 1
+    "per_level_above_first": 11
   },
   "max_cost": {
-    "base": 10,
-    "per_level_above_first": 1
+    "base": 21,
+    "per_level_above_first": 11
   },
   "anvil_cost": 4,
   "slots": [
@@ -21,12 +21,12 @@
   "effects": {
     "minecraft:attributes": [
       {
-        "id": "minecraft:enchantment.sharpness_test",
+        "id": "minecraft:enchantment.sharpness",
         "attribute": "minecraft:generic.attack_damage",
         "amount": {
           "type": "minecraft:linear",
-          "base": 10.0,
-          "per_level_above_first": 10.0
+          "base": 1,
+          "per_level_above_first": 0.5
         },
         "operation": "add_value"
       }

@@ -19,9 +19,10 @@ public class ModLangProvider extends LanguageProvider {
         //https://moddingwithryan.com/tutorials/ml-1-21-datagen-lang/
         //todo: Enchantment names
         for(var elementName : ElementalsAPI.getAllElementNames()) {
-            add(String.format("enchantment.%s.increased_element_dmg.increased_%s_damage_enchantment", AnIonianOnionsDamageMegacompatMod.MOD_ID, elementName), String.format("Increased %s Damage", Helper.capitalize(elementName)));
-            add(String.format("enchantment.%s.added_element_projectile_attack_dmg.added_%s_damage_enchantment", AnIonianOnionsDamageMegacompatMod.MOD_ID, elementName), String.format("Added %s Projectile Attack Damage", Helper.capitalize(elementName)));
-            add(String.format("enchantment.%s.immunity.%s_immunity_enchantment", AnIonianOnionsDamageMegacompatMod.MOD_ID, elementName), String.format("%s Immunity", Helper.capitalize(elementName)));
+            add(String.format("enchantment.%s.increased_element_dmg.%s", AnIonianOnionsDamageMegacompatMod.MOD_ID, elementName), String.format("Increased %s Damage", Helper.capitalize(elementName)));
+            add(String.format("enchantment.%s.added_element_projectile_attack_dmg.%s", AnIonianOnionsDamageMegacompatMod.MOD_ID, elementName), String.format("Added %s Damage to Projectile Attacks", Helper.capitalize(elementName)));
+            add(String.format("enchantment.%s.element_immunity.%s", AnIonianOnionsDamageMegacompatMod.MOD_ID, elementName), String.format("%s Immunity", Helper.capitalize(elementName)));
+            add(String.format("enchantment.%s.added_element_attack_dmg.%s", AnIonianOnionsDamageMegacompatMod.MOD_ID, elementName), String.format("Added %s Damage to Attacks", Helper.capitalize(elementName)));
         }
         //todo: Attribute names
     }

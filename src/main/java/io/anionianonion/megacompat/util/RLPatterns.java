@@ -9,6 +9,7 @@ public class RLPatterns {
         public static final String ELEMENT_DAMAGE = "%s_damage";
         public static final String ELEMENT_PROJECTILE_ATTACK_DAMAGE = "%s_projectile_attack_damage";
         public static final String ELEMENT_IMMUNITY = "%s_immunity";
+        public static final String ELEMENT_ATTACK_DAMAGE = "%s_attack_damage";
     }
 
     public static class Enchantments {
@@ -16,5 +17,6 @@ public class RLPatterns {
         public static final String INCREASED_ELEMENT_DAMAGE = "increased_element_dmg/%s";
         public static final String ADDED_ELEMENTAL_PROJECTILE_ATTACK_DAMAGE = "added_element_projectile_attack_dmg/%s";
         public static final String ELEMENT_IMMUNITY = "element_immunity/%s";
+        public static final String ADDED_ELEMENT_ATTACK_DAMAGE = "added_element_attack_dmg/%s";
     }
 }

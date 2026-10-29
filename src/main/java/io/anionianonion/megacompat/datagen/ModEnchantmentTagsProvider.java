@@ -28,14 +28,24 @@ public class ModEnchantmentTagsProvider
     @Override
     protected void addTags(HolderLookup.Provider provider) {
 
-        List<ResourceKey<Enchantment>> increasedElementDamageEnchantmentRKs = new ArrayList<>();
+        List<ResourceKey<Enchantment>> enchantmentRKs = new ArrayList<>();
 
+        //these resource keys are all for enchantments
         for(var elementName : ElementalsAPI.getAllElementNames()) {
-            var resourceKey = Helper.makeEnchantmentRK(RLPatterns.Enchantments.INCREASED_ELEMENT_DAMAGE, elementName);
-            increasedElementDamageEnchantmentRKs.add(resourceKey);
+            var incElementDamageRK = Helper.makeEnchantmentRK(RLPatterns.Enchantments.INCREASED_ELEMENT_DAMAGE, elementName);
+            enchantmentRKs.add(incElementDamageRK);
+
+            var addedElementProjectileAttackDamageRK = Helper.makeEnchantmentRK(RLPatterns.Enchantments.ADDED_ELEMENTAL_PROJECTILE_ATTACK_DAMAGE, elementName);
+            enchantmentRKs.add(addedElementProjectileAttackDamageRK);
+
+            var elementImmunityRK = Helper.makeEnchantmentRK(RLPatterns.Enchantments.ELEMENT_IMMUNITY, elementName);
+            enchantmentRKs.add(elementImmunityRK);
+
+            var addedElementAttackDamageRK = Helper.makeEnchantmentRK(RLPatterns.Enchantments.ADDED_ELEMENT_ATTACK_DAMAGE, elementName);
+            enchantmentRKs.add(addedElementAttackDamageRK);
         }
 
         tag(EnchantmentTags.IN_ENCHANTING_TABLE)
-                .addAll(increasedElementDamageEnchantmentRKs);
+                .addAll(enchantmentRKs);
     }
 }

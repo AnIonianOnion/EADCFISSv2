@@ -5,7 +5,6 @@ import io.anionianonion.advanced_arpg_attributes_api.api.AdvancedARPGAttributesA
 import io.anionianonion.elementals_api.api.ElementalsAPI;
 import io.anionianonion.elementals_api.data_classes.ElementCategory;
 import io.anionianonion.megacompat.AnIonianOnionsDamageMegacompatMod;
-import io.anionianonion.megacompat.ModAttributes;
 import io.anionianonion.megacompat.util.Helper;
 import io.anionianonion.megacompat.util.RLPatterns;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,6 +16,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
@@ -63,77 +63,104 @@ public class ModEnchantments {
         }
     }
 
-    /*
-    private static void fillEnchantments(BootstrapContext<Enchantment> context,
-                                         Collection<?> registryValues,
-                                         HashMap<ResourceKey<Enchantment>, Enchantment.Builder> map) {
-
-        var enchantments = context.lookup(Registries.ENCHANTMENT);
-        var items = context.lookup(Registries.ITEM);
-
-        for(var a : registryValues) {
-            AdvancedARPGAttribute advancedARPGAttribute = AdvancedARPGAttributesAPI.getRegistry().get(ResourceLocation.fromNamespaceAndPath(AnIonianOnionsDamageMegacompatMod.MOD_ID, String.format("%s_damage", a.getId())));
-            ResourceKey<Enchantment> resourceKey = ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.fromNamespaceAndPath(AnIonianOnionsDamageMegacompatMod.MOD_ID, String.format("element_categories/%s_enchantment", a.getId())));
-
-            var attribute = BuiltInRegistries.ATTRIBUTE.get(advancedARPGAttribute.getRl());
-            var holder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(attribute);
-
-            map.put(resourceKey,
-                    Enchantment.enchantment(
-                                    Enchantment.definition(
-                                            items.getOrThrow(ItemTags.WEAPON_ENCHANTABLE),
-                                            items.getOrThrow(ItemTags.WEAPON_ENCHANTABLE),
-                                            5,
-                                            10,
-                                            Enchantment.dynamicCost(3, 5),
-                                            Enchantment.dynamicCost(5, 8),
-                                            2,
-                                            EquipmentSlotGroup.MAINHAND
-                                    )
-                            )
-                            .exclusiveWith(enchantments.getOrThrow(EnchantmentTags.DAMAGE_EXCLUSIVE))
-                            .withEffect(EnchantmentEffectComponents.ATTRIBUTES,
-                                    new EnchantmentAttributeEffect(advancedARPGAttribute.getRl(), holder, LevelBasedValue.perLevel(0.15f), AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
-                            )
-            );
-        }
-    }
-     */
-
     private static void registerElementalDamageEnchantments(BootstrapContext<Enchantment> context) {
         var enchantments = context.lookup(Registries.ENCHANTMENT);
         var items = context.lookup(Registries.ITEM);
 
         for(String elementName : ElementalsAPI.getAllElementNames()) {
             //increased element damage
-            var elementalDamageAttributeResourceLocation = Helper.makeRL(RLPatterns.Attributes.ELEMENT_DAMAGE, elementName);
-            var elementalDamageAttribute = BuiltInRegistries.ATTRIBUTE.get(elementalDamageAttributeResourceLocation);
-            if(elementalDamageAttribute == null) continue;
-
-            var elementalDamageAttributeHolder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(elementalDamageAttribute);
-            var elementalDamageEnchantmentResourceKey = Helper.makeEnchantmentRK(RLPatterns.Enchantments.INCREASED_ELEMENT_DAMAGE, elementName);
-            register(context, elementalDamageEnchantmentResourceKey, Enchantment.enchantment(Enchantment.definition(items.getOrThrow(ItemTags.WEAPON_ENCHANTABLE), items.getOrThrow(ItemTags.WEAPON_ENCHANTABLE), 5, 10, Enchantment.dynamicCost(3, 5), Enchantment.dynamicCost(5, 8), 2, EquipmentSlotGroup.MAINHAND)).withEffect(EnchantmentEffectComponents.ATTRIBUTES, new EnchantmentAttributeEffect(elementalDamageAttributeResourceLocation, elementalDamageAttributeHolder, LevelBasedValue.perLevel(0.15f), AttributeModifier.Operation.ADD_MULTIPLIED_BASE)));
+            var elementDamageAttributeResourceLocation = Helper.makeRL(RLPatterns.Attributes.ELEMENT_DAMAGE, elementName);
+            var elementDamageAttribute = BuiltInRegistries.ATTRIBUTE.get(elementDamageAttributeResourceLocation);
+            if(elementDamageAttribute != null) {
+                var elementalDamageAttributeHolder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(elementDamageAttribute);
+                var elementalDamageEnchantmentResourceKey = Helper.makeEnchantmentRK(RLPatterns.Enchantments.INCREASED_ELEMENT_DAMAGE, elementName);
+                register(context, elementalDamageEnchantmentResourceKey, Enchantment.enchantment(
+                        Enchantment.definition(
+                                items.getOrThrow(ItemTags.WEAPON_ENCHANTABLE),
+                                items.getOrThrow(ItemTags.WEAPON_ENCHANTABLE),
+                                5, 10,
+                                Enchantment.dynamicCost(10, 20),
+                                Enchantment.dynamicCost(60, 20),
+                                2, EquipmentSlotGroup.MAINHAND))
+                        .withEffect(EnchantmentEffectComponents.ATTRIBUTES,
+                                new EnchantmentAttributeEffect(
+                                        Helper.makeRL(RLPatterns.Enchantments.INCREASED_ELEMENT_DAMAGE, elementName),
+                                        elementalDamageAttributeHolder,
+                                        LevelBasedValue.perLevel(0.15f),
+                                        AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+                        )
+                );
+            }
 
             //element projectile attack damage (base added), increased and more doesn't exist
-
             var projectileElementalAttackDamageAttributeResourceLocation = Helper.makeRL(RLPatterns.Attributes.ELEMENT_PROJECTILE_ATTACK_DAMAGE, elementName);
-                    //ResourceLocation.fromNamespaceAndPath(AnIonianOnionsDamageMegacompatMod.MOD_ID, String.format("%s_projectile_attack_damage", elementName));
             var projectileElementalAttackDamageAttribute = BuiltInRegistries.ATTRIBUTE.get(projectileElementalAttackDamageAttributeResourceLocation);
-            if(projectileElementalAttackDamageAttribute == null) continue;
-
-            var projectileElementalAttackDamageAttributeHolder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(projectileElementalAttackDamageAttribute);
-            var projectileElementalAttackDamageEnchantmentResourceKey = Helper.makeEnchantmentRK(RLPatterns.Enchantments.ADDED_ELEMENTAL_PROJECTILE_ATTACK_DAMAGE, elementName);
-            register(context, projectileElementalAttackDamageEnchantmentResourceKey, Enchantment.enchantment(Enchantment.definition(items.getOrThrow(TagKey.create(Registries.ITEM, ResourceLocation.parse(String.format("%s:projectile_weapons", AnIonianOnionsDamageMegacompatMod.MOD_ID)))), items.getOrThrow(TagKey.create(Registries.ITEM, ResourceLocation.parse(String.format("%s:projectile_weapons", AnIonianOnionsDamageMegacompatMod.MOD_ID)))), 5, 10, Enchantment.dynamicCost(3, 5), Enchantment.dynamicCost(5, 8), 2, EquipmentSlotGroup.MAINHAND)).withEffect(EnchantmentEffectComponents.ATTRIBUTES, new EnchantmentAttributeEffect(projectileElementalAttackDamageAttributeResourceLocation, projectileElementalAttackDamageAttributeHolder, LevelBasedValue.perLevel(1f), AttributeModifier.Operation.ADD_VALUE)));
+            if(projectileElementalAttackDamageAttribute != null) {
+                var projectileElementalAttackDamageAttributeHolder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(projectileElementalAttackDamageAttribute);
+                var projectileElementalAttackDamageEnchantmentResourceKey = Helper.makeEnchantmentRK(RLPatterns.Enchantments.ADDED_ELEMENTAL_PROJECTILE_ATTACK_DAMAGE, elementName);
+                register(context, projectileElementalAttackDamageEnchantmentResourceKey,
+                        Enchantment.enchantment(
+                                Enchantment.definition(
+                                        items.getOrThrow(TagKey.create(Registries.ITEM, ResourceLocation.parse(String.format("%s:projectile_weapons", AnIonianOnionsDamageMegacompatMod.MOD_ID)))),
+                                        items.getOrThrow(TagKey.create(Registries.ITEM, ResourceLocation.parse(String.format("%s:projectile_weapons", AnIonianOnionsDamageMegacompatMod.MOD_ID)))),
+                                        5, 10,
+                                        Enchantment.dynamicCost(10, 20),
+                                        Enchantment.dynamicCost(60, 20),
+                                        2, EquipmentSlotGroup.MAINHAND))
+                                .withEffect(EnchantmentEffectComponents.ATTRIBUTES, new EnchantmentAttributeEffect(Helper.makeRL(RLPatterns.Enchantments.ADDED_ELEMENTAL_PROJECTILE_ATTACK_DAMAGE, elementName), projectileElementalAttackDamageAttributeHolder, LevelBasedValue.perLevel(1f, 0.5f), AttributeModifier.Operation.ADD_VALUE)));
+            }
 
             //element immunity
             var elementImmunityAttributeResourceLocation = Helper.makeRL(RLPatterns.Attributes.ELEMENT_IMMUNITY, elementName);
-                    //ResourceLocation.fromNamespaceAndPath(AnIonianOnionsDamageMegacompatMod.MOD_ID, String.format("%s_immunity", elementName));
             var elementImmunityAttribute = BuiltInRegistries.ATTRIBUTE.get(elementImmunityAttributeResourceLocation);
-            if(elementImmunityAttribute == null) continue;
+            if(elementImmunityAttribute != null) {
+                var elementImmunityAttributeHolder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(elementImmunityAttribute);
+                var elementImmunityEnchantmentResourceKey = Helper.makeEnchantmentRK(RLPatterns.Enchantments.ELEMENT_IMMUNITY, elementName);
+                register(context, elementImmunityEnchantmentResourceKey,
+                        Enchantment.enchantment(
+                                Enchantment.definition(
+                                        items.getOrThrow(ItemTags.ARMOR_ENCHANTABLE),
+                                        items.getOrThrow(ItemTags.ARMOR_ENCHANTABLE),
+                                        5,
+                                        1,
+                                        Enchantment.dynamicCost(10, 0),
+                                        Enchantment.dynamicCost(100, 0),
+                                        2, EquipmentSlotGroup.ARMOR))
+                        .withEffect(EnchantmentEffectComponents.ATTRIBUTES,
+                                new EnchantmentAttributeEffect(
+                                        Helper.makeRL(RLPatterns.Enchantments.ELEMENT_IMMUNITY, elementName),
+                                        elementImmunityAttributeHolder,
+                                        LevelBasedValue.constant(1f),
+                                        AttributeModifier.Operation.ADD_VALUE)
+                        )
+                );
+            }
 
-            var elementImmunityAttributeHolder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(elementImmunityAttribute);
-            var elementImmunityEnchantmentResourceKey = Helper.makeEnchantmentRK(RLPatterns.Enchantments.ELEMENT_IMMUNITY, elementName);
-            register(context, elementImmunityEnchantmentResourceKey, Enchantment.enchantment(Enchantment.definition(items.getOrThrow(ItemTags.ARMOR_ENCHANTABLE), items.getOrThrow(ItemTags.ARMOR_ENCHANTABLE), 5, 10, Enchantment.dynamicCost(3, 5), Enchantment.dynamicCost(5, 8), 2, EquipmentSlotGroup.ARMOR)).withEffect(EnchantmentEffectComponents.ATTRIBUTES, new EnchantmentAttributeEffect(elementImmunityAttributeResourceLocation, elementImmunityAttributeHolder, LevelBasedValue.perLevel(1f), AttributeModifier.Operation.ADD_VALUE)));
+            //added-values
+            var elementAttackDamageAttributeResourceLocation = Helper.makeRL(RLPatterns.Attributes.ELEMENT_ATTACK_DAMAGE, elementName);
+            var elementAttackDamageAttribute = BuiltInRegistries.ATTRIBUTE.get(elementAttackDamageAttributeResourceLocation);
+            if(elementAttackDamageAttribute != null) {
+                var elementAttackDamageAttributeHolder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(elementAttackDamageAttribute);
+                var addedElementAttackDamageEnchantmentResourceKey = Helper.makeEnchantmentRK(RLPatterns.Enchantments.ADDED_ELEMENT_ATTACK_DAMAGE, elementName);
+                register(context, addedElementAttackDamageEnchantmentResourceKey,
+                        Enchantment.enchantment(
+                                Enchantment.definition(
+                                        items.getOrThrow(ItemTags.WEAPON_ENCHANTABLE),
+                                        items.getOrThrow(ItemTags.WEAPON_ENCHANTABLE),
+                                        5,
+                                        10,
+                                        Enchantment.dynamicCost(10, 20),
+                                        Enchantment.dynamicCost(60, 20),
+                                        2, EquipmentSlotGroup.MAINHAND))
+                        .withEffect(EnchantmentEffectComponents.ATTRIBUTES,
+                                new EnchantmentAttributeEffect(
+                                        Helper.makeRL(RLPatterns.Enchantments.ADDED_ELEMENT_ATTACK_DAMAGE, elementName),
+                                        elementAttackDamageAttributeHolder,
+                                        LevelBasedValue.perLevel(1f, 0.5f),
+                                        AttributeModifier.Operation.ADD_VALUE)
+                        )
+                );
+            }
         }
     }
 
@@ -148,6 +175,45 @@ public class ModEnchantments {
 
         registerElementalDamageEnchantments(context);
 
+    }
+
+    public static void makeAttributeEnchant(BootstrapContext<Enchantment> context,
+                                            String attributeRLPattern, String enchantmentRLPattern,
+                                            TagKey<Item> supportedItems, TagKey<Item> primaryItems,
+                                            int enchantmentWeight, int enchantmentMaxLevel,
+                                            Enchantment.Cost minCost, Enchantment.Cost maxCost,
+                                            int anvilCost, EquipmentSlotGroup slotGroup,
+                                            LevelBasedValue levelBasedValue, AttributeModifier.Operation operation,
+                                            String... RLPatternRplacements) {
+
+        var enchantments = context.lookup(Registries.ENCHANTMENT);
+        var items = context.lookup(Registries.ITEM);
+
+        var attributeRL = Helper.makeRL(attributeRLPattern, RLPatternRplacements);
+        var attribute = BuiltInRegistries.ATTRIBUTE.get(attributeRL);
+
+        if(attribute != null) {
+            var attributeHolder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(attribute);
+            var enchantmentRK = Helper.makeEnchantmentRK(enchantmentRLPattern, RLPatternRplacements);
+            register(context, enchantmentRK,
+                    Enchantment.enchantment(
+                                    Enchantment.definition(
+                                            items.getOrThrow(supportedItems),
+                                            items.getOrThrow(primaryItems),
+                                            enchantmentWeight,
+                                            enchantmentMaxLevel,
+                                            minCost,
+                                            maxCost,
+                                            anvilCost, slotGroup))
+                            .withEffect(EnchantmentEffectComponents.ATTRIBUTES,
+                                    new EnchantmentAttributeEffect(
+                                            Helper.makeRL(enchantmentRLPattern, RLPatternRplacements),
+                                            attributeHolder,
+                                            levelBasedValue,
+                                            operation)
+                            )
+            );
+        }
     }
 
     private static void register(BootstrapContext<Enchantment> registry, ResourceKey<Enchantment> resourceKey, Enchantment.Builder builder) {

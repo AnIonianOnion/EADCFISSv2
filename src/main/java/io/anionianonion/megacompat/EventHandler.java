@@ -142,13 +142,6 @@ public class EventHandler {
             serverPlayer.invulnerableTime = 0;
         }
 
-        if(livingAttackerOrCaster instanceof ServerPlayer serverPlayer) {
-            serverPlayer.sendSystemMessage(Component.literal("damage Context tags: " + damageContext.getTags()));
-        }
-        else {
-            info("damageContext tags: " + damageContext.getTags());
-        }
-
         livingAttackerOrCaster.setData(ModAttachments.DAMAGE_CONTEXT, damageContext);
 
         boolean continuePipeline = DamagePipeline.didHitSucceed(e);
