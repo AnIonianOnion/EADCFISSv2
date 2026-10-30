@@ -10,6 +10,9 @@ import io.anionianonion.megacompat.damage_pipeline.after_hit_confirmed.*;
 import io.anionianonion.megacompat.damage_pipeline.before_hit_confirmed.SpellDodgeStep;
 import io.redspace.ironsspellbooks.item.weapons.StaffItem;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.*;
 
@@ -83,15 +86,21 @@ public class Init {
 
         //melee only
         AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(SwordItem.class, "sword");
+        ModTags.WEAPONS_TO_TAGS.put("sword", ItemTags.SWORDS);
         AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(AxeItem.class, "axe");
+        ModTags.WEAPONS_TO_TAGS.put("axe", ItemTags.AXES);
         AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(StaffItem.class, "staff");
+        ModTags.WEAPONS_TO_TAGS.put("staff", Helper.makeItemTagKey(ResourceLocation.parse("c:tools/staff")));
 
         //melee and ranged
         AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(TridentItem.class, "trident");
+        ModTags.WEAPONS_TO_TAGS.put("trident", ItemTags.TRIDENT_ENCHANTABLE);
 
         //ranged only
         AdvancedARPGAttributesAPI.registerRangedWeaponClassAndTag(BowItem.class, "bow");
+        ModTags.WEAPONS_TO_TAGS.put("bow", ItemTags.BOW_ENCHANTABLE);
         AdvancedARPGAttributesAPI.registerRangedWeaponClassAndTag(CrossbowItem.class, "crossbow");
+        ModTags.WEAPONS_TO_TAGS.put("crossbow", ItemTags.CROSSBOW_ENCHANTABLE);
         AdvancedARPGAttributesAPI.registerRangedWeaponClassAndTag(TridentItem.class, "trident");
     }
     private static void initValidDamageSourceTypesTags() {
@@ -247,7 +256,7 @@ public class Init {
         }
 
         for(var weapon : weapons) {
-            AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_attack_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, weapon)), Set.of(INCREASED, MORE), Set.of(weapon, "attack", "damage"));
+            AdvancedARPGAttributesAPI.regAttribute(ResourceLocation.tryParse(String.format("%s:%s_damage", AnIonianOnionsDamageMegacompatMod.MOD_ID, weapon)), Set.of(INCREASED, MORE), Set.of(weapon, "attack", "damage"));
         }
 
         var critChance = new AdvancedARPGAttribute(ResourceLocation.tryParse(String.format("%s:crit_chance", AnIonianOnionsDamageMegacompatMod.MOD_ID)), Set.of("crit", "chance"));

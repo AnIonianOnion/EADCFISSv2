@@ -4,7 +4,9 @@ import io.anionianonion.megacompat.AnIonianOnionsDamageMegacompatMod;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 
 public class Helper {
@@ -34,7 +36,11 @@ public class Helper {
         return ResourceKey.create(Registries.ENCHANTMENT, Helper.makeRL(replaced, replacements));
     }
 
-    public static ResourceKey<Attribute> makeAttributeRK(String replaced, String... replacements) {
-        return ResourceKey.create(Registries.ATTRIBUTE, Helper.makeRL(replaced, replacements));
+    public static TagKey<Item> makeItemTagKey(ResourceLocation rl) {
+        return TagKey.create(Registries.ITEM, rl);
+    }
+
+    public static TagKey<Enchantment> makeEnchantmentTagKey(ResourceLocation rl) {
+        return TagKey.create(Registries.ENCHANTMENT, rl);
     }
 }
