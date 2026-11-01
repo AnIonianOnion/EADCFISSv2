@@ -10,9 +10,7 @@ import io.anionianonion.megacompat.damage_pipeline.after_hit_confirmed.*;
 import io.anionianonion.megacompat.damage_pipeline.before_hit_confirmed.SpellDodgeStep;
 import io.redspace.ironsspellbooks.item.weapons.StaffItem;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.*;
 
@@ -84,24 +82,24 @@ public class Init {
     }
     private static void initClassesOfWeaponsAndTags() {
 
+        //storing
         //melee only
-        //todo: make sure tags are weapon-enchantable tags, and not weapon tags, otherwise bags won't be included.
         AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(SwordItem.class, "sword");
-        ModTags.WEAPONS_TO_TAGS.put("sword", ItemTags.SWORDS);
+        ModTags.WEAPON_TYPE_IDS_TO_TAGS.put("sword", ItemTags.SWORD_ENCHANTABLE);
         AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(AxeItem.class, "axe");
-        ModTags.WEAPONS_TO_TAGS.put("axe", ItemTags.AXES);
+        ModTags.WEAPON_TYPE_IDS_TO_TAGS.put("axe", ModTags.AXE_ENCHANTABLE);
         AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(StaffItem.class, "staff");
-        ModTags.WEAPONS_TO_TAGS.put("staff", Helper.makeItemTagKey(ResourceLocation.parse("c:tools/staff")));
+        ModTags.WEAPON_TYPE_IDS_TO_TAGS.put("staff", ModTags.STAFF_ENCHANTABLE);
 
         //melee and ranged
         AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(TridentItem.class, "trident");
-        ModTags.WEAPONS_TO_TAGS.put("trident", ItemTags.TRIDENT_ENCHANTABLE);
+        ModTags.WEAPON_TYPE_IDS_TO_TAGS.put("trident", ItemTags.TRIDENT_ENCHANTABLE);
 
         //ranged only
         AdvancedARPGAttributesAPI.registerRangedWeaponClassAndTag(BowItem.class, "bow");
-        ModTags.WEAPONS_TO_TAGS.put("bow", ItemTags.BOW_ENCHANTABLE);
+        ModTags.WEAPON_TYPE_IDS_TO_TAGS.put("bow", ItemTags.BOW_ENCHANTABLE);
         AdvancedARPGAttributesAPI.registerRangedWeaponClassAndTag(CrossbowItem.class, "crossbow");
-        ModTags.WEAPONS_TO_TAGS.put("crossbow", ItemTags.CROSSBOW_ENCHANTABLE);
+        ModTags.WEAPON_TYPE_IDS_TO_TAGS.put("crossbow", ItemTags.CROSSBOW_ENCHANTABLE);
         AdvancedARPGAttributesAPI.registerRangedWeaponClassAndTag(TridentItem.class, "trident");
     }
     private static void initValidDamageSourceTypesTags() {

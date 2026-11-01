@@ -56,6 +56,12 @@ public class DataGenerators {
         dataGenerator.addProvider(event.includeClient(), new ModLangProvider(packOutput));
 
         //changed lookupProvider to modDatapackEntries.getRegistryProvider()
-        dataGenerator.addProvider(event.includeServer(), new ModEnchantmentTagsProvider(packOutput, modDatapackEntries.getRegistryProvider(), existingFileHelper));
+        var modEnchantmentTagsProvider = new ModEnchantmentTagsProvider(packOutput, modDatapackEntries.getRegistryProvider(), existingFileHelper);
+        dataGenerator.addProvider(event.includeServer(), modEnchantmentTagsProvider);
+
+        //seems like I need a block tags provider in order to use a item tags provider.
+        var modBlockTagsProvider = new ModBlockTagsProvider(packOutput, lookupProvider, existingFileHelper);
+        dataGenerator.addProvider(event.includeServer(), modBlockTagsProvider);
+        dataGenerator.addProvider(event.includeServer(), new ModItemTagsProvider(packOutput, lookupProvider, modBlockTagsProvider.contentsGetter(), existingFileHelper));
     }
 }

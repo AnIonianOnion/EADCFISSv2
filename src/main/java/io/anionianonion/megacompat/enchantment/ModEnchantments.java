@@ -8,7 +8,6 @@ import io.anionianonion.megacompat.AnIonianOnionsDamageMegacompatMod;
 import io.anionianonion.megacompat.util.Helper;
 import io.anionianonion.megacompat.util.ModTags;
 import io.anionianonion.megacompat.util.RLPatterns;
-import io.redspace.ironsspellbooks.item.curios.CurioBaseItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -92,7 +91,7 @@ public class ModEnchantments {
 
             //added-weapon-element-attack-damage (base), increased and more doesn't exist (maybe it should?)
             for(var weapon : weapons) {
-                var tag = ModTags.WEAPONS_TO_TAGS.get(weapon);
+                var tag = ModTags.WEAPON_TYPE_IDS_TO_TAGS.get(weapon);
                 if(tag == null) continue;
                 makeAttributeEnchant(context, RLPatterns.Attributes.WEAPON_ELEMENT_ATTACK_DAMAGE, RLPatterns.Enchantments.ADDED_WEAPON_ELEMENT_ATTACK_DAMAGE, tag, 5, 10, 2,
                         Enchantment.dynamicCost(10, 20), Enchantment.dynamicCost(60, 20), EquipmentSlotGroup.MAINHAND, LevelBasedValue.perLevel(1f, 0.5f), AttributeModifier.Operation.ADD_VALUE, null, weapon, elementName);
@@ -127,7 +126,7 @@ public class ModEnchantments {
         }
 
         for(String weaponName : weapons) {
-            var tag = ModTags.WEAPONS_TO_TAGS.get(weaponName);
+            var tag = ModTags.WEAPON_TYPE_IDS_TO_TAGS.get(weaponName);
             if(tag == null) continue;
             makeAttributeEnchant(context, RLPatterns.Attributes.WEAPON_DAMAGE, RLPatterns.Enchantments.INCREASED_WEAPON_DAMAGE, tag, 5, 4, 2,
                     Enchantment.dynamicCost(10, 20), Enchantment.dynamicCost(60, 20), EquipmentSlotGroup.MAINHAND, LevelBasedValue.perLevel(0.10f, 0.05f), AttributeModifier.Operation.ADD_VALUE, null, weaponName);
