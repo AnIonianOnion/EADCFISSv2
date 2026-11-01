@@ -85,6 +85,7 @@ public class Init {
     private static void initClassesOfWeaponsAndTags() {
 
         //melee only
+        //todo: make sure tags are weapon-enchantable tags, and not weapon tags, otherwise bags won't be included.
         AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(SwordItem.class, "sword");
         ModTags.WEAPONS_TO_TAGS.put("sword", ItemTags.SWORDS);
         AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(AxeItem.class, "axe");

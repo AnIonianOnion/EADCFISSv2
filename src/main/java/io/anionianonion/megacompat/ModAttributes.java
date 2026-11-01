@@ -6,6 +6,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.BooleanAttribute;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModAttributes {
@@ -15,12 +16,17 @@ public class ModAttributes {
     public static void register(IEventBus eventBus) {
 
         AnIonianOnionsDamageMegacompatMod.LOGGER.info("Hello, runData from ModAttributes.register!");
-        for(var aaaAtribute : AdvancedARPGAttributesAPI.getRegistry().keySet()) {
-            var namespace = aaaAtribute.getNamespace();
+        for(var aaaAtributeRL : AdvancedARPGAttributesAPI.getRegistry().keySet()) {
+            var namespace = aaaAtributeRL.getNamespace();
             if(!namespace.equals(AnIonianOnionsDamageMegacompatMod.MOD_ID)) continue;
 
-            var path = aaaAtribute.getPath();
-            ATTRIBUTES_REGISTRY.register(path, () -> new RangedAttribute(String.format("attribute.%s.name", path), 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
+            var path = aaaAtributeRL.getPath();
+            if(!path.contains("immunity")) {
+                ATTRIBUTES_REGISTRY.register(path, () -> new RangedAttribute(String.format("attribute.%s.%s.name", namespace, path), 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
+            }
+            else {
+                ATTRIBUTES_REGISTRY.register(path, () -> new BooleanAttribute(String.format("attribute.%s.%s.name", namespace, path), false));
+            }
         }
         ATTRIBUTES_REGISTRY.register(eventBus);
     }

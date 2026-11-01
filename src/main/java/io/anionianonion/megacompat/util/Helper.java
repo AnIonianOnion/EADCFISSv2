@@ -9,6 +9,8 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 
+import java.util.List;
+
 public class Helper {
 
     public static void info(String log) {
@@ -22,6 +24,10 @@ public class Helper {
 
     public static String format(String replaced, String... replacements) {
         return String.format(replaced, (Object[]) replacements);
+    }
+
+    public static String format(String replaced, List<String> replacements) {
+        return String.format(replaced, (Object[]) replacements.toArray());
     }
 
     public static ResourceLocation ofThisMod(String path) {

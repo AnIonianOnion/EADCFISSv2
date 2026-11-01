@@ -125,6 +125,13 @@ public class ModEnchantments {
                     Enchantment.dynamicCost(10, 20), Enchantment.dynamicCost(60, 20), EquipmentSlotGroup.MAINHAND, LevelBasedValue.perLevel(0.10f, 0.05f), AttributeModifier.Operation.ADD_VALUE, ModTags.EXPOSURE_ENCHANTMENT_EXCLUSIVE, elementName);
 
         }
+
+        for(String weaponName : weapons) {
+            var tag = ModTags.WEAPONS_TO_TAGS.get(weaponName);
+            if(tag == null) continue;
+            makeAttributeEnchant(context, RLPatterns.Attributes.WEAPON_DAMAGE, RLPatterns.Enchantments.INCREASED_WEAPON_DAMAGE, tag, 5, 4, 2,
+                    Enchantment.dynamicCost(10, 20), Enchantment.dynamicCost(60, 20), EquipmentSlotGroup.MAINHAND, LevelBasedValue.perLevel(0.10f, 0.05f), AttributeModifier.Operation.ADD_VALUE, null, weaponName);
+        }
     }
 
     public static void bootstrap(BootstrapContext<Enchantment> context) {
