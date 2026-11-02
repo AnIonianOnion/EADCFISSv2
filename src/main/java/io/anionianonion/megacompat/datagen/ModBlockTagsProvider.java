@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
+@Deprecated
 public class ModBlockTagsProvider extends BlockTagsProvider {
 
     //seems like I just need a block tags provider in order to use a item tags provider.

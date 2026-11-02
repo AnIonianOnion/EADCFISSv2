@@ -15,11 +15,11 @@ import java.util.concurrent.CompletableFuture;
 @EventBusSubscriber(modid = AnIonianOnionsDamageMegacompatMod.MOD_ID)
 public class DataGenerators {
 
-    //everything I know so far about why it's not registering the enchantments to the in_enchantment_table tag:
+    //everything I know so far about why it's not registering the enchantments to the in_enchantment_table tags:
     /*
         - Registry keys in ModEnchantments and ModEnchantmentTags provider *both* use RLPatterns.Enchantments, which helps to format
         the enchantment name via Helper.makeEnchantmentRK(pattern, name)
-        - We also store the Enchantment at the address of the ResourceKey in ModEnchantments via register(), which works fine without the in_enchanting_table tag registration, which means that ModDataPackEntries also works fine.
+        - We also store the Enchantment at the address of the ResourceKey in ModEnchantments via register(), which works fine without the in_enchanting_table tags registration, which means that ModDataPackEntries also works fine.
         - Both the mod constructor, and ModAttributes.register() fire during runData, which is confirmed by logging. Therefore,
         the attributes that the enchantments provide modifiers for should exist.
         - And it does, because the continue statements in ModEnchantments never run, even when paired with a null-checker logging statement.
@@ -59,9 +59,12 @@ public class DataGenerators {
         var modEnchantmentTagsProvider = new ModEnchantmentTagsProvider(packOutput, modDatapackEntries.getRegistryProvider(), existingFileHelper);
         dataGenerator.addProvider(event.includeServer(), modEnchantmentTagsProvider);
 
+        //no longer need this as of 11/1/2026, but keeping it in as part of history.
         //seems like I need a block tags provider in order to use a item tags provider.
+        /*
         var modBlockTagsProvider = new ModBlockTagsProvider(packOutput, lookupProvider, existingFileHelper);
         dataGenerator.addProvider(event.includeServer(), modBlockTagsProvider);
         dataGenerator.addProvider(event.includeServer(), new ModItemTagsProvider(packOutput, lookupProvider, modBlockTagsProvider.contentsGetter(), existingFileHelper));
+        */
     }
 }

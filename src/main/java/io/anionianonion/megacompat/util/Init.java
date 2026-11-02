@@ -85,22 +85,31 @@ public class Init {
         //storing
         //melee only
         AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(SwordItem.class, "sword");
-        ModTags.WEAPON_TYPE_IDS_TO_TAGS.put("sword", ItemTags.SWORD_ENCHANTABLE);
+        ModTags.WEAPON_TYPE_IDS_TO_ENCHANTABLE_TAGS.put("sword", ItemTags.SWORD_ENCHANTABLE);
+        ModTags.WEAPON_TYPE_IDS_TO_ACTUAL_TAGS.put("sword", ItemTags.SWORDS);
+
         AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(AxeItem.class, "axe");
-        ModTags.WEAPON_TYPE_IDS_TO_TAGS.put("axe", ModTags.AXE_ENCHANTABLE);
+        ModTags.WEAPON_TYPE_IDS_TO_ENCHANTABLE_TAGS.put("axe", ModTags.AXE_ENCHANTABLE);
+        ModTags.WEAPON_TYPE_IDS_TO_ACTUAL_TAGS.put("axe", ItemTags.AXES);
+
         AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(StaffItem.class, "staff");
-        ModTags.WEAPON_TYPE_IDS_TO_TAGS.put("staff", ModTags.STAFF_ENCHANTABLE);
+        ModTags.WEAPON_TYPE_IDS_TO_ENCHANTABLE_TAGS.put("staff", ModTags.STAFF_ENCHANTABLE);
+        ModTags.WEAPON_TYPE_IDS_TO_ACTUAL_TAGS.put("staff", OtherModsTags.STAVES);
 
         //melee and ranged
         AdvancedARPGAttributesAPI.registerMeleeWeaponClassAndTag(TridentItem.class, "trident");
-        ModTags.WEAPON_TYPE_IDS_TO_TAGS.put("trident", ItemTags.TRIDENT_ENCHANTABLE);
+        AdvancedARPGAttributesAPI.registerRangedWeaponClassAndTag(TridentItem.class, "trident");
+        ModTags.WEAPON_TYPE_IDS_TO_ENCHANTABLE_TAGS.put("trident", ItemTags.TRIDENT_ENCHANTABLE);
+        ModTags.WEAPON_TYPE_IDS_TO_ACTUAL_TAGS.put("trident", OtherModsTags.TRIDENTS);
 
         //ranged only
         AdvancedARPGAttributesAPI.registerRangedWeaponClassAndTag(BowItem.class, "bow");
-        ModTags.WEAPON_TYPE_IDS_TO_TAGS.put("bow", ItemTags.BOW_ENCHANTABLE);
+        ModTags.WEAPON_TYPE_IDS_TO_ENCHANTABLE_TAGS.put("bow", ItemTags.BOW_ENCHANTABLE);
+        ModTags.WEAPON_TYPE_IDS_TO_ACTUAL_TAGS.put("bow", OtherModsTags.BOWS);
+
         AdvancedARPGAttributesAPI.registerRangedWeaponClassAndTag(CrossbowItem.class, "crossbow");
-        ModTags.WEAPON_TYPE_IDS_TO_TAGS.put("crossbow", ItemTags.CROSSBOW_ENCHANTABLE);
-        AdvancedARPGAttributesAPI.registerRangedWeaponClassAndTag(TridentItem.class, "trident");
+        ModTags.WEAPON_TYPE_IDS_TO_ENCHANTABLE_TAGS.put("crossbow", ItemTags.CROSSBOW_ENCHANTABLE);
+        ModTags.WEAPON_TYPE_IDS_TO_ACTUAL_TAGS.put("crossbow", OtherModsTags.CROSSBOWS);
     }
     private static void initValidDamageSourceTypesTags() {
         DamagePipelineAPI.addValidDamageSourceTypeTag("self");
@@ -125,7 +134,7 @@ public class Init {
         AdvancedARPGAttributesAPI.registerTag("melee");
         AdvancedARPGAttributesAPI.registerTag("projectile");
         AdvancedARPGAttributesAPI.registerTag("aoe");
-        //I forgot this tag below, which is why damage was 0.
+        //I forgot this tags below, which is why damage was 0.
         AdvancedARPGAttributesAPI.registerTag("damage");
 
         AdvancedARPGAttributesAPI.registerTag("resistance");
@@ -180,10 +189,10 @@ public class Init {
     }
 
     /**
-     * Creates a copy of allBasicAttributes. Each entry key / ResourceLocation has its path prefixed with the tag, and the new
-     * AAAttribute has the new tag included in the AAAttribute's tags as well.
+     * Creates a copy of allBasicAttributes. Each entry key / ResourceLocation has its path prefixed with the tags, and the new
+     * AAAttribute has the new tags included in the AAAttribute's tags as well.
      @param allBasicAttributes base attributes to copy from
-     @param tag new tag to include, and to prefix the attribute with, no underscore needed.
+     @param tag new tags to include, and to prefix the attribute with, no underscore needed.
      */
     private static void initAttributesWithTag(HashMap<ResourceLocation, AdvancedARPGAttribute> allBasicAttributes, String tag) {
         for(var attributeEntry : allBasicAttributes.entrySet()) {

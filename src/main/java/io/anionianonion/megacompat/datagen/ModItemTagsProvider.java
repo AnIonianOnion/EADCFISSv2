@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
+@Deprecated
 //based on https://github.com/Tutorials-By-Kaupenjoe/NeoForge-Tutorial-1.21.X/blob/30-enchantment/src/main/java/net/kaupenjoe/tutorialmod/datagen/ModItemTagProvider.java
 public class ModItemTagsProvider extends ItemTagsProvider {
 

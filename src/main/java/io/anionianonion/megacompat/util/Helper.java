@@ -46,7 +46,15 @@ public class Helper {
         return TagKey.create(Registries.ITEM, rl);
     }
 
+    public static TagKey<Item> makeItemTagKey(String namespace, String path) {
+        return makeItemTagKey(ResourceLocation.fromNamespaceAndPath(namespace, path));
+    }
+
     public static TagKey<Enchantment> makeEnchantmentTagKey(ResourceLocation rl) {
         return TagKey.create(Registries.ENCHANTMENT, rl);
+    }
+
+    public static TagKey<Enchantment> makeEnchantmentTagKey(String namespace, String path) {
+        return makeEnchantmentTagKey(ResourceLocation.fromNamespaceAndPath(namespace, path));
     }
 }
